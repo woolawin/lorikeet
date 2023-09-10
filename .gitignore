@@ -1,3 +1,4 @@
 lorikeet
 *.o
 .idea
+bazel-*
