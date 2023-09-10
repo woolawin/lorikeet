@@ -15,8 +15,9 @@ cc_binary(
 
 cc_test(
     name = "test",
-    srcs = ["test.cpp", "my_test2.cpp"],
+    srcs = ["test.cpp", "reader_test.cpp"],
     deps = [
+        "lk-taxscan",
         "@googletest//:gtest_main",
         # Add any other dependencies your test needs here
     ],

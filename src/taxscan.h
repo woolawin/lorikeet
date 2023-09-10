@@ -1,6 +1,9 @@
 #ifndef LK_TAXSCAN
 #define LK_TAXSCAN
 
+#include <string>
+#include <vector>
+
 enum TokenKind {
     WHITESPACE,
     WORD,
@@ -9,16 +12,16 @@ enum TokenKind {
 
 struct LineToken {
     TokenKind kind;
-    char value[];
+    std::string value;
 };
 
 struct Line {
     int start;
     int end;
     int word_start;
-    LineToken tokens[];
+    std::vector<LineToken> tokens;
 };
 
-Line parse(char value[]);
+Line parse(std::string value);
 
 #endif
