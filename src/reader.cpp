@@ -1,5 +1,5 @@
 #include <string.h>
-#include "reader.h"
+#include "taxscan.h"
 
 Line parse(char value[]) {
     for (int i = 0; i < strlen(value); i++) {

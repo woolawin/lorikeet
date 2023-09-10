@@ -1,5 +1,5 @@
-#ifndef LK_READER
-#define LK_READER
+#ifndef LK_TAXSCAN
+#define LK_TAXSCAN
 
 enum TokenKind {
     WHITESPACE,
