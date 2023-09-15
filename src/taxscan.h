@@ -51,7 +51,7 @@ struct Line {
         os << "Line(\n\tstart=" << line.start << "\n\tend=" << line.end << "\n\tword_start=" << line.word_start;
         os << "\n\ttokens=[\n";
         for (const LineToken& token : line.tokens) {
-            os << "\t\t" << token;
+            os << "\t\t" << token << "\n";
         }
         os << "\n\t]\n)";
         return os;
