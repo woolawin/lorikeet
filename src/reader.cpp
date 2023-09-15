@@ -3,6 +3,41 @@
 #include <vector>
 #include "taxscan.h"
 
+bool LineToken::operator==(const LineToken& other) const {
+    return this->kind == other.kind
+        && this->value == other.value;
+}
+
+std::ostream& operator<<(std::ostream& os, const LineToken& token) {
+    std::string kind_str;
+    if (token.kind == WHITESPACE) {
+        kind_str = "whitespace";
+    } else if (token.kind == WORD) {
+        kind_str = "word";
+    } else {
+        kind_str = "symbol";
+    }
+    os << "{kind: " << kind_str << ", value=`" << token.value << "`}";
+    return os;
+}
+
+bool Line::operator==(const Line& other) const {
+   return this->start == other.start
+        && this->end == other.end
+        && this->word_start == other.word_start
+        && this->tokens == other.tokens;
+}
+
+std::ostream& operator<<(std::ostream& os, const Line& line) {
+    os << "Line(\n\tstart=" << line.start << "\n\tend=" << line.end << "\n\tword_start=" << line.word_start;
+    os << "\n\ttokens=[\n";
+    for (const LineToken& token : line.tokens) {
+        os << "\t\t" << token << "\n";
+    }
+    os << "\n\t]\n)";
+    return os;
+}
+
 TokenKind kind(char c) {
     if (c == '`') {
         return WORD;
