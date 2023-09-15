@@ -27,6 +27,39 @@ TEST(Reader, TwoWordsWithWhitespaceBetween) {
     EXPECT_EQ(actual, expected);
 }
 
+TEST(Reader, BackquotesMakesWords) {
+    Line actual = parse("`clang++` { `}`");
+    Line expected = {
+        .start = 0,
+        .end = 4,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = WORD,
+                .value = "clang++"
+            },
+            {
+                .kind = WHITESPACE,
+                .value = " "
+            },
+            {
+                .kind = SYMBOL,
+                .value = "{"
+            },
+            {
+                .kind = WHITESPACE,
+                .value = " "
+            },
+            {
+                .kind = WORD,
+                .value = "}"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
 TEST(Reader, WithWhitespaceAtStartAndEnd) {
     Line actual = parse(" \t  \t print data\t\t  ");
     Line expected = {

@@ -4,6 +4,9 @@
 #include "taxscan.h"
 
 TokenKind kind(char c) {
+    if (c == '`') {
+        return WORD;
+    }
     if (std::isalpha(c) || std::isdigit(c) || c == '_') {
         return WORD;
     }
@@ -16,9 +19,14 @@ TokenKind kind(char c) {
 Line parse(std::string value) {
     LineToken* current = nullptr;
     std::vector<LineToken> tokens;
+    bool in_backquotes = false;
     for (int i = 0; i < value.length(); i++) {
         const char c = value[i];
-        const TokenKind char_kind = kind(c);
+        if (c == '`') {
+            in_backquotes = !in_backquotes;
+            continue;
+        }
+        const TokenKind char_kind = in_backquotes ? WORD : kind(c);
 
         if (current == nullptr || char_kind != current->kind) {
             tokens.push_back({.kind = char_kind, .value = std::string(1, c)});
