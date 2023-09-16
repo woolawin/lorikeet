@@ -1,7 +1,7 @@
 
 cc_library(
     name = "lk-taxscan",
-    srcs = ["reader.cpp"],
+    srcs = ["reader.cpp", "taxscan.cpp", "taxscan_types.cpp"],
     hdrs = ["taxscan.h"],
 )
 
@@ -15,6 +15,6 @@ cc_binary(
 
 cc_test(
     name = "test",
-    srcs = ["test.cpp", "reader_test.cpp"],
+    srcs = ["test.cpp", "reader_test.cpp", "taxscan_test.cpp"],
     deps = ["lk-taxscan", "@googletest//:gtest_main"],
 )
