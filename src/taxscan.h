@@ -68,7 +68,7 @@ struct RoutineTaxonomy {
 };
 
 struct BranchTaxonomy {
-    bool defaultBranch; // @TODO rename to default_branch
+    bool default_branch;
     Line input;
     RoutineTaxonomy routine;
 
@@ -123,7 +123,7 @@ class Agent {
     virtual SubroutineResult subroutine(const InstructionTaxonomy& instr, const Line& line) = 0;
 };
 
-FileTaxonomy scan_lines(const std::vector<std:: string>& lines, Agent& agent);
+FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent);
 FileTaxonomy empty_file_taxonomy();
 
 #endif

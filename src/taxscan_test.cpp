@@ -57,7 +57,7 @@ TEST(TaxScan, TestScanLinesOneByOne) {
 		"exit",
 	};
 
-	FileTaxonomy actual = scan_lines(lines, agent);
+	FileTaxonomy actual = scan_file(lines, agent);
 
 	FileTaxonomy expected = {
 		.routine = {

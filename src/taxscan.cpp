@@ -12,7 +12,7 @@ FileTaxonomy err_file(std::optional<TaxScanError>& err) {
 
 BranchTaxonomy new_branch(bool is_default, const Line& input) {
 	return {
-		.defaultBranch = is_default,
+		.default_branch = is_default,
 		.input = input,
 		.routine = { .instructions = {} }
 	};
@@ -49,12 +49,12 @@ void append_input(InstructionTaxonomy& instr, const std::vector<std::string>& li
 	}
 }
 
-struct ScanBranchResult {
+struct ScanRoutineResult {
     size_t offset;
     std::optional<TaxScanError> err;
 };
 
-ScanBranchResult scan_branch(const std::vector<std::string>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
+ScanRoutineResult scan_routine(const std::vector<std::string>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 
 struct DefaultPeeker: public Peek {
@@ -73,8 +73,7 @@ struct DefaultPeeker: public Peek {
     }
 };
 
-// @TODO rename to scan_file
-FileTaxonomy scan_lines(const std::vector<std:: string>& lines, Agent& agent) {
+FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent) {
     FileTaxonomy file = empty_file_taxonomy();
 
     bool is_multi_line_comment = false;
@@ -99,19 +98,18 @@ FileTaxonomy scan_lines(const std::vector<std:: string>& lines, Agent& agent) {
 
         if (result.branch != std::nullopt) {
             file.routine.current_instr().branch(result.branch->is_default, line);
-            ScanBranchResult branch_result = scan_branch(lines, idx + 1, agent, instr);
-            if (branch_result.err != std::nullopt) {
-                return err_file(branch_result.err);
+            ScanRoutineResult routine_result = scan_routine(lines, idx + 1, agent, instr);
+            if (routine_result.err != std::nullopt) {
+                return err_file(routine_result.err);
             }
 
-            idx = branch_result.offset;
+            idx = routine_result.offset;
         }
     }
     return file;
 }
 
-// @TODO rename to scan_routine
-ScanBranchResult scan_branch(const std::vector<std::string>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr) {
+ScanRoutineResult scan_routine(const std::vector<std::string>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr) {
     bool is_multi_line_comment = false;
     const size_t end = lines.size();
     if (position == end) {
@@ -154,7 +152,7 @@ ScanBranchResult scan_branch(const std::vector<std::string>& lines, size_t posit
 		    idx += step_result.offset;
 			if (step_result.branch != std::nullopt) {
 				sub_instr.branch(step_result.branch->is_default, line);
-				ScanBranchResult scan_result = scan_branch(lines, idx + 1, agent, sub_instr);
+				ScanRoutineResult scan_result = scan_routine(lines, idx + 1, agent, sub_instr);
 				if (scan_result.err != std::nullopt) {
 					return { .err = scan_result.err };
 				}

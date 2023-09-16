@@ -24,13 +24,13 @@ std::ostream& operator<<(std::ostream& os, const RoutineTaxonomy& routine) {
 }
 
 bool BranchTaxonomy::operator==(const BranchTaxonomy& other) const {
-    return this->defaultBranch == other.defaultBranch
+    return this->default_branch == other.default_branch
         && this->input == other.input
         && this->routine == other.routine;
 }
 
 std::ostream& operator<<(std::ostream& os, const BranchTaxonomy& branch) {
-    os << "{\n\tdefault_branch=" << branch.defaultBranch << "\n\tinput=" << branch.input;
+    os << "{\n\tdefault_branch=" << branch.default_branch << "\n\tinput=" << branch.input;
     os << "\n\troutine=" << branch.routine << "\n}";
     return os;
 }
