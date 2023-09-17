@@ -2,7 +2,7 @@
 #include <cctype>
 #include <vector>
 #include <sstream>
-#include "taxscan.h"
+#include "line.h"
 
 const std::string EMPTY_WORD = "";
 

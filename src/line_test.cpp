@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "taxscan.h"
+#include "line.h"
 
-TEST(Reader, TwoWordsWithWhitespaceBetween) {
+TEST(Line, TwoWordsWithWhitespaceBetween) {
     Line actual = parse("print data");
     Line expected = {
         .start = 0,
@@ -27,7 +27,7 @@ TEST(Reader, TwoWordsWithWhitespaceBetween) {
     EXPECT_EQ(actual, expected);
 }
 
-TEST(Reader, BackquotesMakesWords) {
+TEST(Line, BackquotesMakesWords) {
     Line actual = parse("`clang++` { `}`");
     Line expected = {
         .start = 0,
@@ -60,7 +60,7 @@ TEST(Reader, BackquotesMakesWords) {
     EXPECT_EQ(actual, expected);
 }
 
-TEST(Reader, WithWhitespaceAtStartAndEnd) {
+TEST(Line, WithWhitespaceAtStartAndEnd) {
     Line actual = parse(" \t  \t print data\t\t  ");
     Line expected = {
         .start = 1,
@@ -93,7 +93,7 @@ TEST(Reader, WithWhitespaceAtStartAndEnd) {
     EXPECT_EQ(actual, expected);
 }
 
-TEST(Reader, SymbolAtEndOfLine) {
+TEST(Line, SymbolAtEndOfLine) {
     Line actual = parse("if true {");
     Line expected = {
         .start = 0,
@@ -126,7 +126,7 @@ TEST(Reader, SymbolAtEndOfLine) {
     EXPECT_EQ(actual, expected);
 }
 
-TEST(Reader, SymbolsInMiddleWithoutSpaces) {
+TEST(Line, SymbolsInMiddleWithoutSpaces) {
     Line actual = parse("count+=1");
     Line expected = {
         .start = 0,
@@ -155,7 +155,7 @@ TEST(Reader, SymbolsInMiddleWithoutSpaces) {
     EXPECT_EQ(actual, expected);
 }
 
-TEST(Reader, WhitespaceSymbolWhitespaceThenWord) {
+TEST(Line, WhitespaceSymbolWhitespaceThenWord) {
     Line actual = parse("\t| echo");
     Line expected = {
         .start = 1,
