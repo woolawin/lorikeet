@@ -63,7 +63,7 @@ TEST(TaxScan, TestScanLinesOneByOne) {
 		.routine = {
 			.instructions = {
 				{
-					.name =     "print",
+					.name =     "print  ",
 					.input =    {parse("print 'Hello'")},
 					.branches = {}
 				},
