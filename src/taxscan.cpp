@@ -43,9 +43,9 @@ InstructionTaxonomy& RoutineTaxonomy::current_instr() {
     return this->instructions.back();
 }
 
-void append_input(InstructionTaxonomy& instr, const std::vector<std::string>& lines, int start, int count) {
+void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, int start, int count) {
 	for (int idx = start; idx < start + count; idx++) {
-		instr.input.push_back(parse(lines[idx]));
+		instr.input.push_back(lines[idx]);
 	}
 }
 
@@ -54,31 +54,37 @@ struct ScanRoutineResult {
     std::optional<TaxScanError> err;
 };
 
-ScanRoutineResult scan_routine(const std::vector<std::string>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
+ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 
 struct DefaultPeeker: public Peek {
-    const std::vector<std::string>& lines;
+    const std::vector<Line>& lines;
     size_t offset;
 
     public:
-    DefaultPeeker(const std::vector<std::string>& lines, size_t offset) : lines(lines), offset(offset) {}
+    DefaultPeeker(const std::vector<Line>& lines, size_t offset) : lines(lines), offset(offset) {}
 
     const std::optional<Line> peek() override {
         if (this->offset == this->lines.size() - 1) {
             return std::nullopt;
         }
         this->offset++;
-        return parse(this->lines[this->offset]);
+        return this->lines[this->offset];
     }
 };
 
-FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent) {
+FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent) {
     FileTaxonomy file = empty_file_taxonomy();
 
     bool is_multi_line_comment = false;
+
+    std::vector<Line> lines;
+    for (size_t idx = 0; idx < lines_raw.size(); idx++) {
+        lines.push_back(parse(lines_raw[idx]));
+    }
+
     for (size_t idx = 0; idx < lines.size(); idx++) {
-        const Line line = parse(lines[idx]);
+        const Line line = lines[idx];
         if (skip_line(line, is_multi_line_comment)) {
             continue;
         }
@@ -109,16 +115,15 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent) {
     return file;
 }
 
-// @TODO first parse all lines
-// @TODO return reference
-ScanRoutineResult scan_routine(const std::vector<std::string>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr) {
+
+ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr) {
     bool is_multi_line_comment = false;
     const size_t end = lines.size();
     if (position == end) {
         return { .err = (TaxScanError){ .message = "", .is_eof_error = true} };
     }
     for (size_t idx = position; idx < end; idx++) {
-        const Line line = parse(lines[idx]);
+        const Line line = lines[idx];
         if (skip_line(line, is_multi_line_comment)) {
             continue;
         }
