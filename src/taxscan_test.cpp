@@ -49,6 +49,28 @@ class TestAgent: public Agent {
 
 TestAgent agent = TestAgent();
 
+TEST(TaxScan, TestSingleInstruction) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+	};
+
+	FileTaxonomy actual  = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'Hello'")},
+					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
 TEST(TaxScan, TestScanLinesOneByOne) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
@@ -81,6 +103,629 @@ TEST(TaxScan, TestScanLinesOneByOne) {
 					.name =     "exit",
 					.input =    {parse("exit")},
 					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanWithPeeking) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"hexdump",
+		"	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46",
+		"   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"end"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name = "hexdump",
+					.input = {
+						parse("hexdump"),
+						parse("	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse("   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse("	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+					},
+					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanAppendWithFollowingInstruction) {
+	std::vector<std::string> lines = {
+		"print 'start'",
+		"hexdump",
+		"	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46",
+		"	0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"end",
+		"print 'done'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'start'")},
+					.branches = {}
+				},
+				{
+					.name = "hexdump",
+					.input = {
+						parse("hexdump"),
+						parse("\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse("\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse("\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+					},
+					.branches = {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse("print 'done'")},
+					.branches = {},
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanIgnoresComments) {
+	std::vector<std::string> lines = {
+		"print 'A'",
+		"# print 'B'",
+		"print 'C'",
+		"#< print 'D'",
+		"print 'E'",
+		"print 'F' >#",
+		"print 'G'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'A'")},
+					.branches = {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse("print 'C'")},
+					.branches   {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse("print 'G'")},
+					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanReservesWhiteSpacingInRaw) {
+	std::vector<std::string> lines = {
+		"print 'A'",
+		"	print 'B'	"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'A'")},
+					.branches = {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse("	print 'B'	")},
+					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanWithSubroutine) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"if true",
+		"	print 'World'",
+		"}"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse("if true")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse("if true"),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'World'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanWithMultipleBranches) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"if true",
+		"	print 'World'",
+		"} else {",
+		"   print 'Bye'",
+		"}"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse("if true")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse("if true"),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'World'")},
+										.branches = {}
+									}
+								}
+							}
+						},
+						{
+							.default_branch = false,
+							.input =         parse("} else {"),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =     {parse("   print 'Bye'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+
+TEST(TaxScan, TestScanWithNestedSubroutine) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"if true {",
+		"	print 'World'",
+		"	if say_goodbye {",
+		"		print 'Bye'",
+		"	}",
+		"}"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = RoutineTaxonomy{
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse("if true {")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse("if true {"),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'World'")},
+										.branches = {}
+									},
+									{
+										.name =  "if",
+										.input = {parse("\tif say_goodbye {")},
+										.branches = {
+											{
+												.default_branch = true,
+												.input =         parse("\tif say_goodbye {"),
+												.routine = {
+													.instructions = {
+														{
+															.name =     "print",
+															.input =    {parse("\t\tprint 'Bye'")},
+															.branches = {}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanInstructionNestedSubroutines) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"if true {",
+		"	print 'World'",
+		"	if say_goodbye {",
+		"		print 'Bye'",
+		"	}",
+		"	print 'done'",
+		"}",
+		"print 'exit'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse("if true {")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse("if true {"),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'World'")},
+										.branches = {}
+									},
+									{
+										.name =  "if",
+										.input = {parse("\tif say_goodbye {")},
+										.branches = {
+											{
+												.default_branch = true,
+												.input =         parse("\tif say_goodbye {"),
+												.routine = {
+													.instructions = {
+														{
+															.name =     "print",
+															.input =    {parse("\t\tprint 'Bye'")},
+															.branches = {}
+														}
+													}
+												}
+											}
+										}
+									},
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'done'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
+				},
+				{
+					.name =     "print",
+					.input =    {parse("print 'exit'")},
+					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
+	std::vector<std::string> lines = {
+		"print 'A'",
+		"if true {",
+		"	print 'B'",
+		"	if say_goodbye {",
+		"		print 'C'",
+		"		print 'D'",
+		"		if yes {",
+		"			print 'D-1'",
+		"			print 'D-2'",
+		"		}",
+		"		print 'E'",
+		"	}",
+		"	print 'F'",
+		"	print 'G'",
+		"	if !false {",
+		"		print 'H'",
+		"		print 'I'",
+		"	}",
+		"	print 'J'",
+		"	print 'K'",
+		"}",
+		"print 'L'",
+		"print 'M'",
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'A'")},
+					.branches = {},
+				},
+				{
+					.name =  "if",
+					.input = {parse("if true {")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse("if true {"),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'B'")},
+										.branches  {}
+									},
+									{
+										.name =  "if",
+										.input = {parse("\tif say_goodbye {")},
+										.branches = {
+											{
+												.default_branch = true,
+												.input =         parse("\tif say_goodbye {"),
+												.routine = {
+													.instructions = {
+														{
+															.name =     "print",
+															.input =    {parse("\t\tprint 'C'")},
+															.branches = {}
+														},
+														{
+															.name =     "print",
+															.input =    {parse("\t\tprint 'D'")},
+															.branches = {}
+														},
+														{
+															.name =  "if",
+															.input = {parse("\t\tif yes {")},
+															.branches = {
+																{
+																	.default_branch = true,
+																	.input =         parse("\t\tif yes {"),
+																	.routine = {
+																		.instructions = {
+																			{
+																				.name =     "print",
+																				.input =    {parse("\t\t\tprint 'D-1'")},
+																				.branches = {}
+																			},
+																			{
+																				.name =     "print",
+																				.input =    {parse("\t\t\tprint 'D-2'")},
+																				.branches = {}
+																			}
+																		}
+																	}
+																}
+															}
+														},
+														{
+															.name =     "print",
+															.input =    {parse("\t\tprint 'E'")},
+															.branches = {}
+														}
+													}
+												}
+											}
+										}
+									},
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'F'")},
+										.branches = {}
+									},
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'G'")},
+										.branches = {}
+									},
+									{
+										.name =  "if",
+										.input = {parse("\tif !false {")},
+										.branches = {
+											{
+												.default_branch = true,
+												.input =         parse("\tif !false {"),
+												.routine = {
+													.instructions = {
+														{
+															.name =     "print",
+															.input =    {parse("\t\tprint 'H'")},
+															.branches = {}
+														},
+														{
+															.name =     "print",
+															.input =    {parse("\t\tprint 'I'")},
+															.branches = {}
+														}
+													}
+												}
+											}
+										}
+									},
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'J'")},
+										.branches = {}
+									},
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'K'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
+				},
+				{
+					.name =     "print",
+					.input =    {parse("print 'L'")},
+					.branches = {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse("print 'M'")},
+					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, TestScanAppendWithinSubroutine) {
+	std::vector<std::string> lines = {
+		"print 'start'",
+		"if true {",
+		"	hexdump",
+		"		0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46",
+		"		0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"		0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"	end",
+		"	print 'done'",
+		"}"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse("print 'start'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse("if true {")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse("if true {"),
+							.routine = {
+								.instructions = {
+									{
+										.name = "hexdump",
+										.input = {
+											parse("	hexdump"),
+											parse("\t\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+											parse("\t\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+											parse("\t\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+										},
+										branches: {}
+									},
+									{
+										.name =     "print",
+										.input =    {parse("\tprint 'done'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}

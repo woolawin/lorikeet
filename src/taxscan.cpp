@@ -109,6 +109,8 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent) {
     return file;
 }
 
+// @TODO first parse all lines
+// @TODO return reference
 ScanRoutineResult scan_routine(const std::vector<std::string>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr) {
     bool is_multi_line_comment = false;
     const size_t end = lines.size();
@@ -153,6 +155,7 @@ ScanRoutineResult scan_routine(const std::vector<std::string>& lines, size_t pos
 			if (step_result.branch != std::nullopt) {
 				sub_instr.branch(step_result.branch->is_default, line);
 				ScanRoutineResult scan_result = scan_routine(lines, idx + 1, agent, sub_instr);
+				idx = scan_result.offset;
 				if (scan_result.err != std::nullopt) {
 					return { .err = scan_result.err };
 				}
