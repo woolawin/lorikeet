@@ -183,3 +183,63 @@ TEST(Line, WhitespaceSymbolWhitespaceThenWord) {
 
     EXPECT_EQ(actual, expected);
 }
+
+TEST(Line, HasSymbolSeqNoSymbols) {
+	std::string line = "foo bar";
+	EXPECT_FALSE(parse(line).has_symbol_seq(0, "=>"));
+}
+
+TEST(Line, HasSymbolHasEq) {
+	std::string line = "foo=>bar";
+	EXPECT_TRUE(parse(line).has_symbol_seq(1, "=>"));
+}
+
+TEST(Line, HasSymbolInsufficientLength) {
+	std::string line = "foo:=";
+	EXPECT_FALSE(parse(line).has_symbol_seq(1, ":=>"));
+}
+
+TEST(Line, HasSymbolAtEnd) {
+	std::string line = "foo ||";
+	EXPECT_TRUE(parse(line).has_symbol_seq(2, "||"));
+}
+
+TEST(Line, LineEndsWithJustSymbol) {
+	std::string line = "}";
+	EXPECT_TRUE(parse(line).ends_with_symbol_seq("}"));
+}
+
+TEST(Line, EndsWithSymbolSeqWithWordBeforeSymbolSeq) {
+	std::string line = " foo }";
+	EXPECT_TRUE(parse(line).ends_with_symbol_seq("}"));
+}
+
+TEST(Line, EndsWithSymbolSeqWithMultiCharacterSymbol) {
+	std::string line = "blah blah >#";
+	EXPECT_TRUE(parse(line).ends_with_symbol_seq(">#"));
+}
+
+TEST(Line, LineDoesNotEndWithSymbol) {
+	std::string line = "blah blah ># fff";
+	EXPECT_FALSE(parse(line).ends_with_symbol_seq(">#"));
+}
+
+TEST(Line, IsSeqOfStrings) {
+	std::string line = "} else {";
+	EXPECT_TRUE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+}
+
+TEST(Line, IsSeqOfStringsIgnoringWhitespace) {
+	std::string line = "\t\t\t   }   \telse   \t \t  {  ";
+	EXPECT_TRUE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+}
+
+TEST(Line, IsNotSeqOfStringsIfEndsWithMoreTokens) {
+	std::string line = "} else { then";
+	EXPECT_FALSE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+}
+
+TEST(Line, IsNotSeqOfStringsIfStartsWithDifferentToken) {
+	std::string line = "do else {";
+	EXPECT_FALSE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+}

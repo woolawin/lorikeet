@@ -49,7 +49,7 @@ class TestAgent: public Agent {
 
 TestAgent agent = TestAgent();
 
-TEST(TaxScan, TestSingleInstruction) {
+TEST(TaxScan, SingleInstruction) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 	};
@@ -71,7 +71,7 @@ TEST(TaxScan, TestSingleInstruction) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanLinesOneByOne) {
+TEST(TaxScan, ScanLinesOneByOne) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"var name := 'bob'",
@@ -111,7 +111,7 @@ TEST(TaxScan, TestScanLinesOneByOne) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanWithPeeking) {
+TEST(TaxScan, ScanWithPeeking) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"hexdump",
@@ -148,7 +148,7 @@ TEST(TaxScan, TestScanWithPeeking) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanAppendWithFollowingInstruction) {
+TEST(TaxScan, ScanAppendWithFollowingInstruction) {
 	std::vector<std::string> lines = {
 		"print 'start'",
 		"hexdump",
@@ -191,7 +191,7 @@ TEST(TaxScan, TestScanAppendWithFollowingInstruction) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanIgnoresComments) {
+TEST(TaxScan, ScanIgnoresComments) {
 	std::vector<std::string> lines = {
 		"print 'A'",
 		"# print 'B'",
@@ -229,7 +229,7 @@ TEST(TaxScan, TestScanIgnoresComments) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanReservesWhiteSpacingInRaw) {
+TEST(TaxScan, ScanReservesWhiteSpacingInRaw) {
 	std::vector<std::string> lines = {
 		"print 'A'",
 		"	print 'B'	"
@@ -257,7 +257,7 @@ TEST(TaxScan, TestScanReservesWhiteSpacingInRaw) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanWithSubroutine) {
+TEST(TaxScan, ScanWithSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"if true",
@@ -301,7 +301,7 @@ TEST(TaxScan, TestScanWithSubroutine) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanWithMultipleBranches) {
+TEST(TaxScan, ScanWithMultipleBranches) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"if true",
@@ -361,7 +361,7 @@ TEST(TaxScan, TestScanWithMultipleBranches) {
 }
 
 
-TEST(TaxScan, TestScanWithNestedSubroutine) {
+TEST(TaxScan, ScanWithNestedSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"if true {",
@@ -427,7 +427,7 @@ TEST(TaxScan, TestScanWithNestedSubroutine) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanInstructionNestedSubroutines) {
+TEST(TaxScan, ScanInstructionNestedSubroutines) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"if true {",
@@ -505,7 +505,7 @@ TEST(TaxScan, TestScanInstructionNestedSubroutines) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
+TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 	std::vector<std::string> lines = {
 		"print 'A'",
 		"if true {",
@@ -675,7 +675,7 @@ TEST(TaxScan, TestScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, TestScanAppendWithinSubroutine) {
+TEST(TaxScan, ScanAppendWithinSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'start'",
 		"if true {",
