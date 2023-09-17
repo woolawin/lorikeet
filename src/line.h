@@ -29,6 +29,7 @@ struct Line {
     friend std::ostream& operator<<(std::ostream& os, const Line& line);
 
     std::string raw() const;
+    std::string starting_whitespace() const;
     const std::string& first_word() const;
     bool only_whitespace() const;
     bool ends_with_symbol_seq(const std::string& symbol_seq) const;
@@ -40,5 +41,14 @@ struct Line {
 };
 
 Line parse(std::string value);
+
+
+struct Indentation {
+    std::vector<std::string> indentations;
+
+    int diff(const std::string& next_indentation) const;
+    void indent(const std::string& indentation);
+//    void go_back(int indentation_count);
+};
 
 #endif

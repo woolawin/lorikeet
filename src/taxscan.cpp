@@ -77,7 +77,7 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
     FileTaxonomy file = empty_file_taxonomy();
 
     bool is_multi_line_comment = false;
-
+    Indentation indentation;
     std::vector<Line> lines;
     for (size_t idx = 0; idx < lines_raw.size(); idx++) {
         lines.push_back(parse(lines_raw[idx]));
@@ -89,10 +89,12 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
             continue;
         }
 
+        file.routine.append(line);
         const std::string instr_name = line.first_word();
         TaxStrat strat = agent.tax_strat(instr_name);
-        if (strat.block_kind == NA) {
-            file.routine.append(line);
+
+        int indentation_diff = indentation.diff(line.starting_whitespace());
+        if (indentation_diff == 0) {
             continue;
         }
 

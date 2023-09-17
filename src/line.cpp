@@ -158,6 +158,13 @@ Line Line::crop_from_first_word() const {
     return {.start = start, .end = end, .word_start = word_start, .tokens = new_tokens};
 }
 
+std::string Line::starting_whitespace() const {
+    if (this->start == 0) {
+        return "";
+    }
+    return this->tokens[0].value;
+}
+
 TokenKind kind(char c) {
     if (c == '`') {
         return WORD;
@@ -216,4 +223,24 @@ Line parse(std::string value) {
     return {.start = start, .end = end, .word_start = word_start, .tokens = tokens};
 }
 
+int Indentation::diff(const std::string& next_indentation) const {
+    if (this->indentations.empty()) {
+        return next_indentation.size() == 0 ? 0 : 1;
+    }
+    if (next_indentation == this->indentations.back()) {
+        return 0;
+    }
+    for (size_t idx = 0; idx < this->indentations.size(); idx++) {
+        if (this->indentations[idx] == next_indentation) {
+            return 1 - (this->indentations.size() - idx);
+        }
+    }
+    if (next_indentation.rfind(this->indentations.back(), 0) != 0) {
+        return 2;
+    }
+    return 1;
+}
 
+void Indentation::indent(const std::string& indentation) {
+    this->indentations.push_back(indentation);
+}
