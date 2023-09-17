@@ -10,14 +10,14 @@ class TestAgent: public Agent {
         if (instr.name == "hexdump") {
             for (size_t count = 0; true; count++) {
                 const std::optional<Line> line = peek.peek();
-//                if (line == std::nullopt) {
-//                    return StepResult{
-//                        err: &TaxScanError{
-//                            message:    "instruction `hexdump` not terminated with 'end' line",
-//                            isEofError: true,
-//                        },
-//                    }
-//                }
+                if (line == std::nullopt) {
+                    return {
+                        .err = (TaxScanError){
+                            .message =    "instruction `hexdump` not terminated with 'end' line",
+                            .is_eof_error = true
+                        }
+                    };
+                }
                 if (line->only_non_whitespace_equals("end")) {
                     return { .offset = count + 1, .input_count = count };
                 }
@@ -34,9 +34,9 @@ class TestAgent: public Agent {
     }
 
     SubroutineResult subroutine(const InstructionTaxonomy& instr, const Line& line) {
-//        if (instr.name == "oops") {
-//            return SubroutineResult{err: &TaxScanError{message: "some error"}};
-//        }
+        if (instr.name == "oops") {
+            return { .err = (TaxScanError){ .message = "some error" } };
+        }
         if (instr.name == "if" && line.only_non_whitespace_equals("}")) {
             return { .add = false, .step = false, .offset = 0};
         }
@@ -63,7 +63,7 @@ TEST(TaxScan, TestScanLinesOneByOne) {
 		.routine = {
 			.instructions = {
 				{
-					.name =     "print  ",
+					.name =     "print",
 					.input =    {parse("print 'Hello'")},
 					.branches = {}
 				},
