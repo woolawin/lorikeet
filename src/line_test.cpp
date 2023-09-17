@@ -243,3 +243,15 @@ TEST(Line, IsNotSeqOfStringsIfStartsWithDifferentToken) {
 	std::string line = "do else {";
 	EXPECT_FALSE(parse(line).is_seq_of_strings({"}", "else", "{"}));
 }
+
+TEST(Line, MinusFirstWordWhenFirstTokenIsWord) {
+    Line actual = parse("foo bar baz");
+    Line expected = parse(" bar baz");
+    EXPECT_EQ(actual.crop_from_first_word(), expected);
+}
+
+TEST(Line, MinusFirstWordWhenFirstTokensAreWhitespace) {
+    Line actual = parse("  \t  \tfoo.doh doh\t");
+    Line expected = parse(".doh doh\t");
+    EXPECT_EQ(actual.crop_from_first_word(), expected);
+}

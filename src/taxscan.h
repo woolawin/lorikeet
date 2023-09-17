@@ -82,8 +82,20 @@ class Peek {
 	virtual const std::optional<Line> peek() = 0;
 };
 
+enum BlockKind {
+    NA,
+    INPUT,
+    APPEND,
+    ROUTINE
+};
+
+struct TaxStrat {
+    BlockKind block_kind;
+};
+
 class Agent {
     public:
+    virtual TaxStrat tax_strat(const std::string& instr_name) = 0;
     virtual StepResult step(const InstructionTaxonomy& instr, Peek& peek) = 0;
     virtual SubroutineResult subroutine(const InstructionTaxonomy& instr, const Line& line) = 0;
 };

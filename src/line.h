@@ -36,6 +36,7 @@ struct Line {
     bool starts_with_symbol_seq(const std::string& symbol_seq) const;
     bool only_non_whitespace_equals(const std::string& value) const;
     bool is_seq_of_strings(const std::vector<std::string>& values) const;
+    Line crop_from_first_word() const;
 };
 
 Line parse(std::string value);

@@ -21,7 +21,7 @@ BranchTaxonomy new_branch(bool is_default, const Line& input) {
 InstructionTaxonomy new_instruction(const Line& line) {
 	return {
 		.name = line.first_word(),
-		.input =  {line},
+		.input =  {line.crop_from_first_word()},
 		.branches = {},
 	};
 }
@@ -86,6 +86,13 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
     for (size_t idx = 0; idx < lines.size(); idx++) {
         const Line line = lines[idx];
         if (skip_line(line, is_multi_line_comment)) {
+            continue;
+        }
+
+        const std::string instr_name = line.first_word();
+        TaxStrat strat = agent.tax_strat(instr_name);
+        if (strat.block_kind == NA) {
+            file.routine.append(line);
             continue;
         }
 

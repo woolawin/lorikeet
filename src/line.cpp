@@ -127,6 +127,37 @@ std::string Line::raw() const {
 	return stream.str();
 }
 
+Line Line::crop_from_first_word() const {
+    bool found_first_word = false;
+    int crop_offset = 0;
+    int start = -1;
+    int end = -1;
+    int word_start = -1;
+    std::vector<LineToken> new_tokens;
+    for (size_t idx = 0; idx < tokens.size(); idx++) {
+        const LineToken token = tokens[idx];
+        if (!found_first_word && token.kind != WORD) {
+            continue;
+        }
+        if (!found_first_word && token.kind == WORD) {
+            found_first_word = true;
+            crop_offset = idx + 1;
+            continue;
+        }
+        new_tokens.push_back(token);
+        if (token.kind != WHITESPACE) {
+            end = idx - crop_offset;
+        }
+        if (token.kind != WHITESPACE && start == -1) {
+            start = idx - crop_offset;
+        }
+        if (token.kind == WORD && word_start == -1) {
+            word_start = idx - crop_offset;
+        }
+    }
+    return {.start = start, .end = end, .word_start = word_start, .tokens = new_tokens};
+}
+
 TokenKind kind(char c) {
     if (c == '`') {
         return WORD;
@@ -170,7 +201,7 @@ Line parse(std::string value) {
     int start = -1;
     int end = -1;
     int word_start = -1;
-    for (size_t idx = 0; idx < tokens.size(); ++idx) {
+    for (size_t idx = 0; idx < tokens.size(); idx++) {
         const LineToken token = tokens[idx];
         if (token.kind != WHITESPACE) {
             end = idx;
@@ -184,3 +215,5 @@ Line parse(std::string value) {
     }
     return {.start = start, .end = end, .word_start = word_start, .tokens = tokens};
 }
+
+

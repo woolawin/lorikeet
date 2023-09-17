@@ -14,7 +14,7 @@ cc_library(
 
 cc_binary(
     name = "lorikeet",
-    srcs = ["main.cpp", "reader.cpp"],
+    srcs = ["main.cpp"],
     deps = [
         ":lk-taxscan",
     ],
