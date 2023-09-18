@@ -54,8 +54,14 @@ struct ScanRoutineResult {
     std::optional<TaxScanError> err;
 };
 
+struct InputBlockResult {
+    std::vector<Line> lines;
+    size_t resume_at;
+};
+
 ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
 bool skip_line(const Line& line, bool& is_multi_line_comment);
+InputBlockResult scan_input_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
 
 struct DefaultPeeker: public Peek {
     const std::vector<Line>& lines;
@@ -88,16 +94,33 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
         if (skip_line(line, is_multi_line_comment)) {
             continue;
         }
-
-        file.routine.append(line);
-        const std::string instr_name = line.first_word();
-        TaxStrat strat = agent.tax_strat(instr_name);
-
-        int indentation_diff = indentation.diff(line.starting_whitespace());
+        InstructionTaxonomy& instr = file.routine.append(line);
+        if (idx == lines.size() - 1) {
+            continue;
+        }
+        int indentation_diff = indentation.diff(lines[idx + 1].starting_whitespace());
         if (indentation_diff == 0) {
             continue;
         }
+        if (indentation_diff == 2) {
+            continue; // handle error
+        }
+        if (indentation_diff == -1) {
+            continue; // goback
+        }
 
+        TaxStrat tax_strat = agent.tax_strat(line.first_word());
+        if (tax_strat.block_kind == NA) {
+            continue; //error
+        }
+        if (tax_strat.block_kind == INPUT) {
+            InputBlockResult result = scan_input_block(lines, idx + 1, indentation);
+            instr.input = result.lines;
+            idx = result.resume_at;
+            continue;
+        }
+
+        /*
         InstructionTaxonomy& instr = file.routine.append(line);
         DefaultPeeker peek = DefaultPeeker(lines, idx);
         StepResult result = agent.step(instr, peek);
@@ -119,7 +142,7 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
             }
 
             idx = routine_result.offset;
-        }
+        }*/
     }
     return file;
 }
@@ -179,6 +202,26 @@ ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, 
         return { .offset = idx + result.offset };
     }
     return { .offset = end };
+}
+
+InputBlockResult scan_input_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation) {
+    std::vector<Line> block;
+    for (size_t idx = starting_from; idx < lines.size(); idx++) {
+        const Line line = lines[idx];
+        const int diff = indentation.diff(line.starting_whitespace());
+        if (diff == 2) {
+            return { .lines = block, .resume_at = idx - 1 }; // @TODO handle error
+        }
+        if (diff == 1) {
+            block.push_back(line);
+            continue;
+        }
+        if (diff < 0 || line.first_word() != "end") {
+            return { .lines = block, .resume_at = idx - 1 };
+        }
+        return { .lines = block, .resume_at = idx };
+    }
+    return { .lines = block, .resume_at = lines.size() };
 }
 
 bool skip_line(const Line& line, bool& is_multi_line_comment) {

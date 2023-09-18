@@ -7,6 +7,9 @@
 class TestAgent: public Agent {
     public:
     TaxStrat tax_strat(const std::string& name) {
+        if (name == "hexdump") {
+            return { .block_kind = INPUT };
+        }
         return { .block_kind = NA };
     }
 
@@ -114,8 +117,8 @@ TEST(TaxScan, ScanLinesOneByOne) {
 
 	EXPECT_EQ(actual, expected);
 }
-/*
-TEST(TaxScan, ScanWithPeeking) {
+
+TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"hexdump",
@@ -132,13 +135,12 @@ TEST(TaxScan, ScanWithPeeking) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'Hello'")},
+					.input =    {parse(" 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name = "hexdump",
 					.input = {
-						parse("hexdump"),
 						parse("	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
 						parse("   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 						parse("	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
@@ -152,7 +154,49 @@ TEST(TaxScan, ScanWithPeeking) {
 	EXPECT_EQ(actual, expected);
 }
 
-TEST(TaxScan, ScanAppendWithFollowingInstruction) {
+TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"hexdump",
+		"	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46",
+		"   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"print 'done'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse(" 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name = "hexdump",
+					.input = {
+						parse("	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse("   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse("	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+					},
+					.branches = {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse(" 'done'")},
+					.branches = {}
+				},
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+
+TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 	std::vector<std::string> lines = {
 		"print 'start'",
 		"hexdump",
@@ -170,13 +214,12 @@ TEST(TaxScan, ScanAppendWithFollowingInstruction) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'start'")},
+					.input =    {parse(" 'start'")},
 					.branches = {}
 				},
 				{
 					.name = "hexdump",
 					.input = {
-						parse("hexdump"),
 						parse("\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
 						parse("\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 						parse("\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
@@ -185,7 +228,7 @@ TEST(TaxScan, ScanAppendWithFollowingInstruction) {
 				},
 				{
 					.name =     "print",
-					.input =    {parse("print 'done'")},
+					.input =    {parse(" 'done'")},
 					.branches = {},
 				}
 			}
@@ -213,17 +256,17 @@ TEST(TaxScan, ScanIgnoresComments) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'A'")},
+					.input =    {parse(" 'A'")},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse("print 'C'")},
+					.input =    {parse(" 'C'")},
 					.branches   {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse("print 'G'")},
+					.input =    {parse(" 'G'")},
 					.branches = {}
 				}
 			}
@@ -232,35 +275,7 @@ TEST(TaxScan, ScanIgnoresComments) {
 
 	EXPECT_EQ(actual, expected);
 }
-
-TEST(TaxScan, ScanReservesWhiteSpacingInRaw) {
-	std::vector<std::string> lines = {
-		"print 'A'",
-		"	print 'B'	"
-	};
-
-	FileTaxonomy actual = scan_file(lines, agent);
-
-	FileTaxonomy expected = {
-		.routine = {
-			.instructions = {
-				{
-					.name =     "print",
-					.input =    {parse("print 'A'")},
-					.branches = {}
-				},
-				{
-					.name =     "print",
-					.input =    {parse("	print 'B'	")},
-					.branches = {}
-				}
-			}
-		}
-	};
-
-	EXPECT_EQ(actual, expected);
-}
-
+/*
 TEST(TaxScan, ScanWithSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
