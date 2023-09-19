@@ -74,9 +74,13 @@ enum BlockFunction {
 struct TaxStrat {
     ParseStrat parse_strat;
     BlockFunction block_function;
+    std::vector<std::string> branch_instr;
 };
 
-TaxStrat strat(ParseStrat parse);
+TaxStrat value_strat();
+TaxStrat command_strat();
+TaxStrat branch_strat(std::vector<std::string> branch_instr);
+TaxStrat custom_strat(BlockFunction block_func);
 
 class Agent {
     public:

@@ -8,15 +8,15 @@ class TestAgent: public Agent {
     public:
     TaxStrat tax_strat(const std::string& name) {
         if (name == "if") {
-            return strat(BRANCH);
+            return branch_strat({"else"});
         }
         if (name == "curl") {
-            return strat(COMMAND);
+            return command_strat();
         }
         if (name == "hexdump") {
-            return strat(CUSTOM);
+            return custom_strat(INPUT);
         }
-        return strat(COMMAND);
+        return command_strat();
     }
 };
 
@@ -361,15 +361,14 @@ TEST(TaxScan, ScanWithSubroutine) {
 
 	EXPECT_EQ(actual, expected);
 }
-/*
-TEST(TaxScan, ScanWithMultipleBranches) {
+
+TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"if true",
 		"	print 'World'",
-		"} else {",
-		"   print 'Bye'",
-		"}"
+		"else if false",
+		"   print 'Bye'"
 	};
 
 	FileTaxonomy actual = scan_file(lines, agent);
@@ -379,21 +378,21 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'Hello'")},
+					.input =    {parse(" 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse("if true")},
+					.input = {parse(" true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse("if true"),
+							.input =         parse(""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'World'")},
+										.input =    {parse(" 'World'")},
 										.branches = {}
 									}
 								}
@@ -401,12 +400,12 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 						},
 						{
 							.default_branch = false,
-							.input =         parse("} else {"),
+							.input =         parse(" if false"),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =     {parse("   print 'Bye'")},
+										.input =     {parse(" 'Bye'")},
 										.branches = {}
 									}
 								}
@@ -420,7 +419,197 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 
 	EXPECT_EQ(actual, expected);
 }
-*/
+
+TEST(TaxScan, ScanWithMultipleBranches) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"if true",
+		"	print 'World'",
+		"else",
+		"   print 'Bye'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse(" 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse(" true")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse(""),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse(" 'World'")},
+										.branches = {}
+									}
+								}
+							}
+						},
+						{
+							.default_branch = false,
+							.input =         parse(""),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =     {parse(" 'Bye'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+
+TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"if true",
+		"	print 'World'",
+		"	print 'Earth'",
+		"else",
+		"   print 'Bye'",
+		"   print 'Cheerio'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse(" 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse(" true")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse(""),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse(" 'World'")},
+										.branches = {}
+									},
+									{
+										.name =     "print",
+										.input =    {parse(" 'Earth'")},
+										.branches = {}
+									}
+								}
+							}
+						},
+						{
+							.default_branch = false,
+							.input =         parse(""),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =     {parse(" 'Bye'")},
+										.branches = {}
+									},
+									{
+										.name =     "print",
+										.input =     {parse(" 'Cheerio'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+
+TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"if true",
+		"	print 'World'",
+		"#	print 'Earth'",
+		"else",
+		"#   print 'Bye'",
+		"   print 'Cheerio'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse(" 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name =  "if",
+					.input = {parse(" true")},
+					.branches = {
+						{
+							.default_branch = true,
+							.input =         parse(""),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =    {parse(" 'World'")},
+										.branches = {}
+									}
+								}
+							}
+						},
+						{
+							.default_branch = false,
+							.input =         parse(""),
+							.routine = {
+								.instructions = {
+									{
+										.name =     "print",
+										.input =     {parse(" 'Cheerio'")},
+										.branches = {}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
 
 TEST(TaxScan, ScanWithNestedSubroutine) {
 	std::vector<std::string> lines = {
