@@ -255,22 +255,22 @@ Line parse(std::string value) {
     return line;
 }
 
-int Indentation::diff(const std::string& next_indentation) const {
+IndentationDiff Indentation::diff(const std::string& next_indentation) const {
     if (this->indentations.empty()) {
-        return next_indentation.size() == 0 ? 0 : 1;
+        return next_indentation.size() == 0 ? SAME : INCREASE;
     }
     if (next_indentation == this->indentations.back()) {
-        return 0;
+        return SAME;
     }
     for (size_t idx = 0; idx < this->indentations.size(); idx++) {
         if (this->indentations[idx] == next_indentation) {
-            return 1 - (this->indentations.size() - idx);
+            return DECREASE;
         }
     }
     if (next_indentation.rfind(this->indentations.back(), 0) != 0) {
-        return 2;
+        return ERROR;
     }
-    return 1;
+    return INCREASE;
 }
 
 Indentation Indentation::indent(const std::string& indentation) const {

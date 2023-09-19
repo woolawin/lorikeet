@@ -46,11 +46,17 @@ struct Line {
 
 Line parse(std::string value);
 
+enum IndentationDiff {
+    INCREASE,
+    DECREASE,
+    SAME,
+    ERROR
+};
 
 struct Indentation {
     std::vector<std::string> indentations;
 
-    int diff(const std::string& next_indentation) const;
+    IndentationDiff diff(const std::string& next_indentation) const;
     Indentation indent(const std::string& indentation) const;
 
 };

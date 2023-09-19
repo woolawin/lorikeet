@@ -76,14 +76,11 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
         }
         const std::string starting_whitespace = lines[idx + 1].starting_whitespace();
         int indentation_diff = indentation.diff(starting_whitespace);
-        if (indentation_diff == 0) {
+        if (indentation_diff == SAME) {
             continue;
         }
-        if (indentation_diff == 2) {
+        if (indentation_diff == ERROR) {
             continue; // handle error
-        }
-        if (indentation_diff < 0) {
-            continue; // goback
         }
 
         TaxStrat tax_strat = agent.tax_strat(line.first_word());
@@ -126,14 +123,14 @@ BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, con
             continue;
         }
         const int diff = indentation.diff(line.starting_whitespace());
-        if (diff == 2) {
+        if (diff == ERROR) {
             return { .lines = block, .resume_at = idx - 1 }; // @TODO handle error
         }
-        if (diff == 1) {
+        if (diff == INCREASE) {
             block.push_back(line);
             continue;
         }
-        if (diff < 0 || line.first_word() != "end") {
+        if (diff == DECREASE || line.first_word() != "end") {
             return { .lines = block, .resume_at = idx - 1 };
         }
         return { .lines = block, .resume_at = idx };

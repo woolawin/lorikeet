@@ -258,45 +258,45 @@ TEST(Line, MinusFirstWordWhenFirstTokensAreWhitespace) {
 
 TEST(Indentation, SameIndentationWithNoLevels) {
     Indentation indentation = { .indentations = {} };
-    EXPECT_EQ(indentation.diff(""), 0);
+    EXPECT_EQ(indentation.diff(""), SAME);
 }
 
 TEST(Indentation, FirstIndentationLevel) {
     Indentation indentation = { .indentations = {} };
-    EXPECT_EQ(indentation.diff(" "), 1);
+    EXPECT_EQ(indentation.diff(" "), INCREASE);
 }
 
 TEST(Indentation, FirstLevelOfIndentation) {
     Indentation indentation = { .indentations = { "" } };
-    EXPECT_EQ(indentation.diff(" "), 1);
+    EXPECT_EQ(indentation.diff(" "), INCREASE);
 }
 
 TEST(Indentation, SecondLevelOfIndentation) {
     Indentation indentation = { .indentations = { "", "  " } };
-    EXPECT_EQ(indentation.diff("    "), 1);
+    EXPECT_EQ(indentation.diff("    "), INCREASE);
 }
 
 TEST(Indentation, SameIndentationLevelOnNonFirstLevel) {
     Indentation indentation = { .indentations = { "", "  " } };
-    EXPECT_EQ(indentation.diff("  "), 0);
+    EXPECT_EQ(indentation.diff("  "), SAME);
 }
 
 TEST(Indentation, IndentationWentBackOneLevel) {
     Indentation indentation = { .indentations = { "", "  " } };
-    EXPECT_EQ(indentation.diff(""), -1);
+    EXPECT_EQ(indentation.diff(""), DECREASE);
 }
 
 TEST(Indentation, IndentationWentBackOneLevelButNotToFirstLevel) {
     Indentation indentation = { .indentations = { "", " ", "  ", "   ", "    " } };
-    EXPECT_EQ(indentation.diff("  "), -2);
+    EXPECT_EQ(indentation.diff("  "), DECREASE);
 }
 
 TEST(Indentation, WrongIndentation) {
     Indentation indentation = { .indentations = { "", " ", "  " } };
-    EXPECT_EQ(indentation.diff(" \t"), 2);
+    EXPECT_EQ(indentation.diff(" \t"), ERROR);
 }
 
 TEST(Indentation, WrongIndentation2) {
     Indentation indentation = { .indentations = { "", " ", "  ", "   " } };
-    EXPECT_EQ(indentation.diff(" \t "), 2);
+    EXPECT_EQ(indentation.diff(" \t "), ERROR);
 }
