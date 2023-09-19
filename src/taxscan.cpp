@@ -55,22 +55,6 @@ struct BlockResult {
     size_t resume_at;
 };
 
-struct DefaultPeeker: public Peek {
-    const std::vector<Line>& lines;
-    size_t offset;
-
-    public:
-    DefaultPeeker(const std::vector<Line>& lines, size_t offset) : lines(lines), offset(offset) {}
-
-    const std::optional<Line> peek() override {
-        if (this->offset == this->lines.size() - 1) {
-            return std::nullopt;
-        }
-        this->offset++;
-        return this->lines[this->offset];
-    }
-};
-
 ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);

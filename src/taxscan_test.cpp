@@ -18,46 +18,6 @@ class TestAgent: public Agent {
         }
         return { .block_kind = NA };
     }
-
-    StepResult step(const InstructionTaxonomy& instr, Peek& peek) {
-        if (instr.name == "hexdump") {
-            for (size_t count = 0; true; count++) {
-                const std::optional<Line> line = peek.peek();
-                if (line == std::nullopt) {
-                    return {
-                        .err = (TaxScanError){
-                            .message =    "instruction `hexdump` not terminated with 'end' line",
-                            .is_eof_error = true
-                        }
-                    };
-                }
-                if (line->only_non_whitespace_equals("end")) {
-                    return { .offset = count + 1, .input_count = count };
-                }
-            }
-            return {};
-        }
-        if (instr.name == "if") {
-            return { .branch = (BranchResult){ .is_default = true } };
-        }
-        if (instr.name == "oops") {
-            return { .branch = (BranchResult){ .is_default = true } };
-        }
-        return {};
-    }
-
-    SubroutineResult subroutine(const InstructionTaxonomy& instr, const Line& line) {
-        if (instr.name == "oops") {
-            return { .err = (TaxScanError){ .message = "some error" } };
-        }
-        if (instr.name == "if" && line.only_non_whitespace_equals("}")) {
-            return { .add = false, .step = false, .offset = 0};
-        }
-        if (instr.name == "if" && line.is_seq_of_strings({"}", "else", "{"})) {
-            return { .add = false, .step = false, .branch = (BranchResult){}, .offset = 0};
-        }
-        return {. add = true, .step = true};
-    }
 };
 
 TestAgent agent = TestAgent();

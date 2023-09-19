@@ -76,11 +76,6 @@ struct SubroutineResult {
 	std::optional<TaxScanError> err;
 };
 
-class Peek {
-    public:
-	virtual const std::optional<Line> peek() = 0;
-};
-
 enum BlockKind {
     NA,
     INPUT,
@@ -95,8 +90,6 @@ struct TaxStrat {
 class Agent {
     public:
     virtual TaxStrat tax_strat(const std::string& instr_name) = 0;
-    virtual StepResult step(const InstructionTaxonomy& instr, Peek& peek) = 0;
-    virtual SubroutineResult subroutine(const InstructionTaxonomy& instr, const Line& line) = 0;
 };
 
 FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent);
