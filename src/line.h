@@ -51,8 +51,8 @@ struct Indentation {
     std::vector<std::string> indentations;
 
     int diff(const std::string& next_indentation) const;
-    void indent(const std::string& indentation);
-//    void go_back(int indentation_count);
+    Indentation indent(const std::string& indentation) const;
+
 };
 
 #endif

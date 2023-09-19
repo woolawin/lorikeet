@@ -273,6 +273,8 @@ int Indentation::diff(const std::string& next_indentation) const {
     return 1;
 }
 
-void Indentation::indent(const std::string& indentation) {
-    this->indentations.push_back(indentation);
+Indentation Indentation::indent(const std::string& indentation) const {
+    std::vector<std::string> indentations = this->indentations;
+    indentations.push_back(indentation);
+    return { .indentations = indentations };
 }

@@ -420,17 +420,16 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 
 	EXPECT_EQ(actual, expected);
 }
-
+*/
 
 TEST(TaxScan, ScanWithNestedSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
-		"if true {",
-		"	print 'World'",
-		"	if say_goodbye {",
-		"		print 'Bye'",
-		"	}",
-		"}"
+		"if true",
+		"   print 'World'",
+		"	if say_goodbye",
+		"       print 'Bye'",
+		""
 	};
 
 	FileTaxonomy actual = scan_file(lines, agent);
@@ -440,35 +439,35 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'Hello'")},
+					.input =    {parse(" 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse("if true {")},
+					.input = {parse(" true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse("if true {"),
+							.input =         parse(""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'World'")},
+										.input =    {parse(" 'World'")},
 										.branches = {}
 									},
 									{
 										.name =  "if",
-										.input = {parse("\tif say_goodbye {")},
+										.input = {parse(" say_goodbye")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse("\tif say_goodbye {"),
+												.input =         parse(""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse("\t\tprint 'Bye'")},
+															.input =    {parse(" 'Bye'")},
 															.branches = {}
 														}
 													}
@@ -491,13 +490,11 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 TEST(TaxScan, ScanInstructionNestedSubroutines) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
-		"if true {",
+		"if true",
 		"	print 'World'",
-		"	if say_goodbye {",
+		"	if say_goodbye",
 		"		print 'Bye'",
-		"	}",
 		"	print 'done'",
-		"}",
 		"print 'exit'"
 	};
 
@@ -508,35 +505,35 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'Hello'")},
+					.input =    {parse(" 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse("if true {")},
+					.input = {parse(" true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse("if true {"),
+							.input =         parse(""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'World'")},
+										.input =    {parse(" 'World'")},
 										.branches = {}
 									},
 									{
 										.name =  "if",
-										.input = {parse("\tif say_goodbye {")},
+										.input = {parse(" say_goodbye")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse("\tif say_goodbye {"),
+												.input =         parse(""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse("\t\tprint 'Bye'")},
+															.input =    {parse(" 'Bye'")},
 															.branches = {}
 														}
 													}
@@ -546,7 +543,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 									},
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'done'")},
+										.input =    {parse(" 'done'")},
 										.branches = {}
 									}
 								}
@@ -556,7 +553,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 				},
 				{
 					.name =     "print",
-					.input =    {parse("print 'exit'")},
+					.input =    {parse(" 'exit'")},
 					.branches = {}
 				}
 			}
@@ -569,26 +566,26 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 	std::vector<std::string> lines = {
 		"print 'A'",
-		"if true {",
+		"if true",
 		"	print 'B'",
-		"	if say_goodbye {",
+		"	if say_goodbye",
 		"		print 'C'",
 		"		print 'D'",
-		"		if yes {",
+		"		if yes",
 		"			print 'D-1'",
 		"			print 'D-2'",
-		"		}",
+		"",
 		"		print 'E'",
-		"	}",
+		"	",
 		"	print 'F'",
 		"	print 'G'",
-		"	if !false {",
+		"	if !false",
 		"		print 'H'",
 		"		print 'I'",
-		"	}",
+		"	",
 		"	print 'J'",
 		"	print 'K'",
-		"}",
+		"",
 		"print 'L'",
 		"print 'M'",
 	};
@@ -600,59 +597,59 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'A'")},
+					.input =    {parse(" 'A'")},
 					.branches = {},
 				},
 				{
 					.name =  "if",
-					.input = {parse("if true {")},
+					.input = {parse(" true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse("if true {"),
+							.input =         parse(""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'B'")},
+										.input =    {parse(" 'B'")},
 										.branches  {}
 									},
 									{
 										.name =  "if",
-										.input = {parse("\tif say_goodbye {")},
+										.input = {parse(" say_goodbye")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse("\tif say_goodbye {"),
+												.input =         parse(""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse("\t\tprint 'C'")},
+															.input =    {parse(" 'C'")},
 															.branches = {}
 														},
 														{
 															.name =     "print",
-															.input =    {parse("\t\tprint 'D'")},
+															.input =    {parse(" 'D'")},
 															.branches = {}
 														},
 														{
 															.name =  "if",
-															.input = {parse("\t\tif yes {")},
+															.input = {parse(" yes")},
 															.branches = {
 																{
 																	.default_branch = true,
-																	.input =         parse("\t\tif yes {"),
+																	.input =         parse(""),
 																	.routine = {
 																		.instructions = {
 																			{
 																				.name =     "print",
-																				.input =    {parse("\t\t\tprint 'D-1'")},
+																				.input =    {parse(" 'D-1'")},
 																				.branches = {}
 																			},
 																			{
 																				.name =     "print",
-																				.input =    {parse("\t\t\tprint 'D-2'")},
+																				.input =    {parse(" 'D-2'")},
 																				.branches = {}
 																			}
 																		}
@@ -662,7 +659,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 														},
 														{
 															.name =     "print",
-															.input =    {parse("\t\tprint 'E'")},
+															.input =    {parse(" 'E'")},
 															.branches = {}
 														}
 													}
@@ -672,31 +669,31 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 									},
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'F'")},
+										.input =    {parse(" 'F'")},
 										.branches = {}
 									},
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'G'")},
+										.input =    {parse(" 'G'")},
 										.branches = {}
 									},
 									{
 										.name =  "if",
-										.input = {parse("\tif !false {")},
+										.input = {parse(" !false")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse("\tif !false {"),
+												.input =         parse(""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse("\t\tprint 'H'")},
+															.input =    {parse(" 'H'")},
 															.branches = {}
 														},
 														{
 															.name =     "print",
-															.input =    {parse("\t\tprint 'I'")},
+															.input =    {parse(" 'I'")},
 															.branches = {}
 														}
 													}
@@ -706,12 +703,12 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 									},
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'J'")},
+										.input =    {parse(" 'J'")},
 										.branches = {}
 									},
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'K'")},
+										.input =    {parse(" 'K'")},
 										.branches = {}
 									}
 								}
@@ -721,12 +718,12 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 				},
 				{
 					.name =     "print",
-					.input =    {parse("print 'L'")},
+					.input =    {parse(" 'L'")},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse("print 'M'")},
+					.input =    {parse(" 'M'")},
 					.branches = {}
 				}
 			}
@@ -735,7 +732,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 
 	EXPECT_EQ(actual, expected);
 }
-
+/*
 TEST(TaxScan, ScanAppendWithinSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'start'",

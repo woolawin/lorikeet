@@ -84,7 +84,8 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
         if (idx == lines.size() - 1) {
             continue;
         }
-        int indentation_diff = indentation.diff(lines[idx + 1].starting_whitespace());
+        const std::string starting_whitespace = lines[idx + 1].starting_whitespace();
+        int indentation_diff = indentation.diff(starting_whitespace);
         if (indentation_diff == 0) {
             continue;
         }
@@ -120,7 +121,8 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
 
         if (tax_strat.block_kind == ROUTINE) {
             instr.branch(true, parse(""));
-            scan_routine(result.lines, indentation, instr.current_branch().routine, agent);
+            Indentation new_indentation = indentation.indent(starting_whitespace);
+            scan_routine(result.lines, new_indentation, instr.current_branch().routine, agent);
         }
     }
 }
