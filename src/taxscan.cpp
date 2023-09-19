@@ -26,12 +26,9 @@ InstructionTaxonomy new_instruction(const Line& line) {
 	};
 }
 
-void InstructionTaxonomy::branch(bool is_default, const Line& line) {
+BranchTaxonomy& InstructionTaxonomy::branch(bool is_default, const Line& line) {
     this->branches.push_back(new_branch(is_default, line));
-}
-
-BranchTaxonomy& InstructionTaxonomy::current_branch() {
-	return this->branches.back();
+    return this->branches.back();
 }
 
 InstructionTaxonomy& RoutineTaxonomy::append(const Line& line) {
@@ -120,9 +117,9 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
         }
 
         if (tax_strat.block_kind == ROUTINE) {
-            instr.branch(true, parse(""));
+            BranchTaxonomy& branch = instr.branch(true, parse(""));
             Indentation new_indentation = indentation.indent(starting_whitespace);
-            scan_routine(result.lines, new_indentation, instr.current_branch().routine, agent);
+            scan_routine(result.lines, new_indentation, branch.routine, agent);
         }
     }
 }

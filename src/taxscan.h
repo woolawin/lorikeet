@@ -18,8 +18,7 @@ struct InstructionTaxonomy {
     bool operator==(const InstructionTaxonomy& other) const;
     friend std::ostream& operator<<(std::ostream& os, const InstructionTaxonomy& line);
 
-    void branch(bool is_default, const Line& line);
-    BranchTaxonomy& current_branch();
+    BranchTaxonomy& branch(bool is_default, const Line& line);
 };
 
 struct RoutineTaxonomy {
