@@ -42,20 +42,13 @@ void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, in
 	}
 }
 
-struct ScanRoutineResult {
-    size_t offset;
-    std::optional<TaxScanError> err;
-};
-
 struct BlockResult {
     std::vector<Line> lines;
     size_t resume_at;
 };
 
-ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
-
 void scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent);
 
 FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent) {

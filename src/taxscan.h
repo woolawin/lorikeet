@@ -56,25 +56,6 @@ struct FileTaxonomy {
 	friend std::ostream& operator<<(std::ostream& os, const FileTaxonomy& line);
 };
 
-struct BranchResult {
-	bool is_default;
-};
-
-struct StepResult {
-	std::optional<BranchResult> branch;
-	size_t offset;
-	size_t input_count;
-	std::optional<TaxScanError> err;
-};
-
-struct SubroutineResult {
-	bool add;
-	bool step;
-	std::optional<BranchResult> branch;
-	size_t offset;
-	std::optional<TaxScanError> err;
-};
-
 enum BlockKind {
     NA,
     INPUT,
