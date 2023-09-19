@@ -8,15 +8,15 @@ class TestAgent: public Agent {
     public:
     TaxStrat tax_strat(const std::string& name) {
         if (name == "if") {
-            return { .block_kind = ROUTINE };
+            return strat(BRANCH);
         }
         if (name == "curl") {
-            return { .block_kind = APPEND };
+            return strat(COMMAND);
         }
         if (name == "hexdump") {
-            return { .block_kind = INPUT };
+            return strat(CUSTOM);
         }
-        return { .block_kind = NA };
+        return strat(COMMAND);
     }
 };
 

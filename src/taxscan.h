@@ -56,7 +56,15 @@ struct FileTaxonomy {
 	friend std::ostream& operator<<(std::ostream& os, const FileTaxonomy& line);
 };
 
-enum BlockKind {
+enum ParseStrat {
+    VALUE,
+    COMMAND,
+    BRANCH,
+    CUSTOM
+};
+
+enum BlockFunction {
+    DEFAULT,
     NA,
     INPUT,
     APPEND,
@@ -64,8 +72,11 @@ enum BlockKind {
 };
 
 struct TaxStrat {
-    BlockKind block_kind;
+    ParseStrat parse_strat;
+    BlockFunction block_function;
 };
+
+TaxStrat strat(ParseStrat parse);
 
 class Agent {
     public:

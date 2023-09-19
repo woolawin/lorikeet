@@ -42,6 +42,15 @@ void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, in
 	}
 }
 
+TaxStrat strat(ParseStrat parse) {
+    switch (parse) {
+    case VALUE: return { .parse_strat = VALUE, .block_function = NA };
+    case COMMAND: return { .parse_strat = COMMAND, .block_function = APPEND };
+    case BRANCH: return { .parse_strat = BRANCH, .block_function = ROUTINE };
+    case CUSTOM: return { .parse_strat = CUSTOM, .block_function = INPUT };
+    }
+}
+
 struct BlockResult {
     std::vector<Line> lines;
     size_t resume_at;
@@ -84,17 +93,17 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
         }
 
         TaxStrat tax_strat = agent.tax_strat(line.first_word());
-        if (tax_strat.block_kind == NA) {
+        if (tax_strat.block_function == NA) {
             continue; //error
         }
         BlockResult result = scan_block(lines, idx + 1, indentation);
         idx = result.resume_at;
 
-        if (tax_strat.block_kind == INPUT) {
+        if (tax_strat.block_function == INPUT) {
             instr.input = result.lines;
         }
 
-        if (tax_strat.block_kind == APPEND) {
+        if (tax_strat.block_function == APPEND) {
             Line input = line.crop_from_first_word();
             input.append(' ');
             for (size_t i = 0; i < result.lines.size(); i++) {
@@ -106,7 +115,7 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
             instr.input = {input};
         }
 
-        if (tax_strat.block_kind == ROUTINE) {
+        if (tax_strat.block_function == ROUTINE) {
             BranchTaxonomy& branch = instr.branch(true, parse(""));
             Indentation new_indentation = indentation.indent(starting_whitespace);
             scan_routine(result.lines, new_indentation, branch.routine, agent);
