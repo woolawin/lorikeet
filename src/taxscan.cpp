@@ -256,8 +256,12 @@ ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, 
 
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation) {
     std::vector<Line> block;
+    bool is_multi_line_comment = false;
     for (size_t idx = starting_from; idx < lines.size(); idx++) {
         const Line line = lines[idx];
+        if (skip_line(line, is_multi_line_comment)) {
+            continue;
+        }
         const int diff = indentation.diff(line.starting_whitespace());
         if (diff == 2) {
             return { .lines = block, .resume_at = idx - 1 }; // @TODO handle error

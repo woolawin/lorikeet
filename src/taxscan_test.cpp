@@ -198,6 +198,49 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 	EXPECT_EQ(actual, expected);
 }
 
+TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
+	std::vector<std::string> lines = {
+		"print 'Hello'",
+		"hexdump",
+		"	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46",
+		"# ignore me",
+		"   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"	# and me",
+		"	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
+		"print 'done'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "print",
+					.input =    {parse(" 'Hello'")},
+					.branches = {}
+				},
+				{
+					.name = "hexdump",
+					.input = {
+						parse("	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse("   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse("	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+					},
+					.branches = {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse(" 'done'")},
+					.branches = {}
+				},
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
 
 TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 	std::vector<std::string> lines = {
