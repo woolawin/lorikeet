@@ -39,10 +39,6 @@ InstructionTaxonomy& RoutineTaxonomy::append(const Line& line) {
     return this->instructions.back();
 }
 
-InstructionTaxonomy& RoutineTaxonomy::current_instr() {
-    return this->instructions.back();
-}
-
 void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, int start, int count) {
 	for (int idx = start; idx < start + count; idx++) {
 		instr.input.push_back(lines[idx]);
@@ -79,7 +75,7 @@ ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, 
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
 
-void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent);
+void scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent);
 
 FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent) {
     FileTaxonomy file = empty_file_taxonomy();
@@ -89,14 +85,18 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
     for (size_t idx = 0; idx < lines_raw.size(); idx++) {
         lines.push_back(parse(lines_raw[idx]));
     }
-    scan_scan(lines, 0, indentation, file.routine, agent);
-    /*
+    scan_routine(lines, indentation, file.routine, agent);
+    return file;
+}
+
+void scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent) {
+    bool is_multi_line_comment = false;
     for (size_t idx = 0; idx < lines.size(); idx++) {
         const Line line = lines[idx];
         if (skip_line(line, is_multi_line_comment)) {
             continue;
         }
-        InstructionTaxonomy& instr = file.routine.append(line);
+        InstructionTaxonomy& instr = routine.append(line);
         if (idx == lines.size() - 1) {
             continue;
         }
@@ -107,67 +107,7 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
         if (indentation_diff == 2) {
             continue; // handle error
         }
-        if (indentation_diff == -1) {
-            continue; // goback
-        }
-
-        TaxStrat tax_strat = agent.tax_strat(line.first_word());
-        if (tax_strat.block_kind == NA) {
-            continue; //error
-        }
-        if (tax_strat.block_kind == INPUT) {
-            InputBlockResult result = scan_input_block(lines, idx + 1, indentation);
-            instr.input = result.lines;
-            idx = result.resume_at;
-            continue;
-        }
-        */
-        /*
-        InstructionTaxonomy& instr = file.routine.append(line);
-        DefaultPeeker peek = DefaultPeeker(lines, idx);
-        StepResult result = agent.step(instr, peek);
-        if (result.err != std::nullopt) {
-            return err_file(result.err);
-        }
-
-        if (result.input_count > 1) {
-            append_input(instr, lines, idx + 1, result.input_count);
-        }
-
-        idx += result.offset;
-
-        if (result.branch != std::nullopt) {
-            file.routine.current_instr().branch(result.branch->is_default, line);
-            ScanRoutineResult routine_result = scan_routine(lines, idx + 1, agent, instr);
-            if (routine_result.err != std::nullopt) {
-                return err_file(routine_result.err);
-            }
-
-            idx = routine_result.offset;
-        }*/
-    //}
-    return file;
-}
-
-void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent) {
-    bool is_multi_line_comment = false;
-    for (size_t idx = position; idx < lines.size(); idx++) {
-        const Line line = lines[idx];
-        if (skip_line(line, is_multi_line_comment)) {
-            continue;
-        }
-        routine.append(line);
-        if (idx == lines.size() - 1) {
-            continue;
-        }
-        int indentation_diff = indentation.diff(lines[idx + 1].starting_whitespace());
-        if (indentation_diff == 0) {
-            continue;
-        }
-        if (indentation_diff == 2) {
-            continue; // handle error
-        }
-        if (indentation_diff == -1) {
+        if (indentation_diff < 0) {
             continue; // goback
         }
 
@@ -177,9 +117,9 @@ void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& ind
         }
         BlockResult result = scan_block(lines, idx + 1, indentation);
         idx = result.resume_at;
+
         if (tax_strat.block_kind == INPUT) {
-            routine.current_instr().input = result.lines;
-            continue;
+            instr.input = result.lines;
         }
 
         if (tax_strat.block_kind == APPEND) {
@@ -191,67 +131,14 @@ void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& ind
                     input.append(' ');
                 }
             }
-            routine.current_instr().input = {input};
-            continue;
+            instr.input = {input};
+        }
+
+        if (tax_strat.block_kind == ROUTINE) {
+            instr.branch(true, parse(""));
+            scan_routine(result.lines, indentation, instr.current_branch().routine, agent);
         }
     }
-}
-
-
-ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr) {
-    bool is_multi_line_comment = false;
-    const size_t end = lines.size();
-    if (position == end) {
-        return { .err = (TaxScanError){ .message = "", .is_eof_error = true} };
-    }
-    for (size_t idx = position; idx < end; idx++) {
-        const Line line = lines[idx];
-        if (skip_line(line, is_multi_line_comment)) {
-            continue;
-        }
-
-        SubroutineResult result = agent.subroutine(instr, line);
-
-        if (result.err != std::nullopt) {
-            return { .err = result.err };
-        }
-
-        if (result.add) {
-            instr.current_branch().routine.append(line);
-        }
-
-        if (result.branch != std::nullopt) {
-            instr.branch(result.branch->is_default, line);
-            idx += result.offset;
-            continue;
-        }
-
-        if (result.step) {
-			InstructionTaxonomy& sub_instr = instr.current_branch().routine.current_instr();
-			DefaultPeeker peek = DefaultPeeker(lines, idx);
-			StepResult step_result = agent.step(sub_instr, peek);
-
-		    if (step_result.err != std::nullopt) {
-				return { .err = step_result.err };
-			}
-			if (step_result.input_count > 1) {
-				append_input(sub_instr, lines, idx + 1, step_result.input_count);
-			}
-
-		    idx += step_result.offset;
-			if (step_result.branch != std::nullopt) {
-				sub_instr.branch(step_result.branch->is_default, line);
-				ScanRoutineResult scan_result = scan_routine(lines, idx + 1, agent, sub_instr);
-				idx = scan_result.offset;
-				if (scan_result.err != std::nullopt) {
-					return { .err = scan_result.err };
-				}
-			}
-			continue;
-        }
-        return { .offset = idx + result.offset };
-    }
-    return { .offset = end };
 }
 
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation) {

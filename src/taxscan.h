@@ -29,7 +29,6 @@ struct RoutineTaxonomy {
     friend std::ostream& operator<<(std::ostream& os, const RoutineTaxonomy& line);
 
     InstructionTaxonomy& append(const Line& line);
-    InstructionTaxonomy& current_instr();
 };
 
 struct BranchTaxonomy {

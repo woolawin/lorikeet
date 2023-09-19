@@ -7,6 +7,9 @@
 class TestAgent: public Agent {
     public:
     TaxStrat tax_strat(const std::string& name) {
+        if (name == "if") {
+            return { .block_kind = ROUTINE };
+        }
         if (name == "curl") {
             return { .block_kind = APPEND };
         }
@@ -354,13 +357,13 @@ TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 
 	EXPECT_EQ(actual, expected);
 }
-/*
+
 TEST(TaxScan, ScanWithSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
 		"if true",
 		"	print 'World'",
-		"}"
+		""
 	};
 
 	FileTaxonomy actual = scan_file(lines, agent);
@@ -370,21 +373,21 @@ TEST(TaxScan, ScanWithSubroutine) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'Hello'")},
+					.input =    {parse(" 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse("if true")},
+					.input = {parse(" true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse("if true"),
+							.input =         parse(""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'World'")},
+										.input =    {parse(" 'World'")},
 										.branches = {}
 									}
 								}
@@ -398,7 +401,7 @@ TEST(TaxScan, ScanWithSubroutine) {
 
 	EXPECT_EQ(actual, expected);
 }
-
+/*
 TEST(TaxScan, ScanWithMultipleBranches) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
