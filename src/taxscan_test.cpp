@@ -7,6 +7,9 @@
 class TestAgent: public Agent {
     public:
     TaxStrat tax_strat(const std::string& name) {
+        if (name == "curl") {
+            return { .block_kind = APPEND };
+        }
         if (name == "hexdump") {
             return { .block_kind = INPUT };
         }
@@ -268,6 +271,39 @@ TEST(TaxScan, ScanIgnoresComments) {
 					.name =     "print",
 					.input =    {parse(" 'G'")},
 					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+TEST(TaxScan, ScanWithAppendToSingleLineInput) {
+	std::vector<std::string> lines = {
+		"curl -X POST",
+		"   http://foo/bar",
+		"   --header Authorization: hello",
+		"   --body 'baz'",
+		"print 'done'"
+	};
+
+	FileTaxonomy actual = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name = "curl",
+					.input = {
+						parse(" -X POST http://foo/bar --header Authorization: hello --body 'baz'")
+					},
+					.branches = {}
+				},
+				{
+					.name =     "print",
+					.input =    {parse(" 'done'")},
+					.branches = {},
 				}
 			}
 		}

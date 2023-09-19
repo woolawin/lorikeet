@@ -158,6 +158,24 @@ Line Line::crop_from_first_word() const {
     return {.start = start, .end = end, .word_start = word_start, .tokens = new_tokens};
 }
 
+bool Line::empty() const {
+    return this->tokens.empty();
+}
+
+std::string Line::trim() const {
+    std::stringstream stream;
+    const size_t start = this->tokens[0].kind == WHITESPACE
+        ? 1
+        : 0;
+    const size_t end = this->tokens.back().kind == WHITESPACE
+        ? this->tokens.size() - 1
+        : this->tokens.size();
+    for (size_t idx = start; idx < end; idx++) {
+        stream << this->tokens[idx].value;
+    }
+    return stream.str();
+}
+
 std::string Line::starting_whitespace() const {
     if (this->start == 0) {
         return "";

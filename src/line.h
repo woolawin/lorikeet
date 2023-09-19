@@ -30,8 +30,10 @@ struct Line {
 
     std::string raw() const;
     std::string starting_whitespace() const;
+    std::string trim() const;
     const std::string& first_word() const;
     bool only_whitespace() const;
+    bool empty() const;
     bool ends_with_symbol_seq(const std::string& symbol_seq) const;
     bool has_symbol_seq(size_t index, const std::string& symbol_seq) const;
     bool starts_with_symbol_seq(const std::string& symbol_seq) const;

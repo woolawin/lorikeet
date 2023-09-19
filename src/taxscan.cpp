@@ -1,5 +1,6 @@
 
 #include <optional>
+#include <sstream>
 #include "taxscan.h"
 
 FileTaxonomy empty_file_taxonomy() {
@@ -54,7 +55,7 @@ struct ScanRoutineResult {
     std::optional<TaxScanError> err;
 };
 
-struct InputBlockResult {
+struct BlockResult {
     std::vector<Line> lines;
     size_t resume_at;
 };
@@ -77,7 +78,7 @@ struct DefaultPeeker: public Peek {
 
 ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
 bool skip_line(const Line& line, bool& is_multi_line_comment);
-InputBlockResult scan_input_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
+BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
 
 void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent);
 
@@ -175,10 +176,24 @@ void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& ind
         if (tax_strat.block_kind == NA) {
             continue; //error
         }
+        BlockResult result = scan_block(lines, idx + 1, indentation);
+        idx = result.resume_at;
         if (tax_strat.block_kind == INPUT) {
-            InputBlockResult result = scan_input_block(lines, idx + 1, indentation);
             routine.current_instr().input = result.lines;
-            idx = result.resume_at;
+            continue;
+        }
+
+        if (tax_strat.block_kind == APPEND) {
+            // @TODO make joining lines more efficient
+            std::stringstream stream;
+            stream << line.crop_from_first_word().raw() << " ";
+            for (size_t i = 0; i < result.lines.size(); i++) {
+                stream << result.lines[i].trim();
+                if (i != result.lines.size() - 1) {
+                    stream << " ";
+                }
+            }
+            routine.current_instr().input = {parse(stream.str())};
             continue;
         }
     }
@@ -241,7 +256,7 @@ ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, 
     return { .offset = end };
 }
 
-InputBlockResult scan_input_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation) {
+BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation) {
     std::vector<Line> block;
     for (size_t idx = starting_from; idx < lines.size(); idx++) {
         const Line line = lines[idx];
