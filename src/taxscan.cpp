@@ -59,10 +59,6 @@ struct InputBlockResult {
     size_t resume_at;
 };
 
-ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
-bool skip_line(const Line& line, bool& is_multi_line_comment);
-InputBlockResult scan_input_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
-
 struct DefaultPeeker: public Peek {
     const std::vector<Line>& lines;
     size_t offset;
@@ -79,16 +75,22 @@ struct DefaultPeeker: public Peek {
     }
 };
 
+ScanRoutineResult scan_routine(const std::vector<Line>& lines, size_t position, Agent& agent, InstructionTaxonomy& instr);
+bool skip_line(const Line& line, bool& is_multi_line_comment);
+InputBlockResult scan_input_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
+
+void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent);
+
 FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent) {
     FileTaxonomy file = empty_file_taxonomy();
 
-    bool is_multi_line_comment = false;
     Indentation indentation;
     std::vector<Line> lines;
     for (size_t idx = 0; idx < lines_raw.size(); idx++) {
         lines.push_back(parse(lines_raw[idx]));
     }
-
+    scan_scan(lines, 0, indentation, file.routine, agent);
+    /*
     for (size_t idx = 0; idx < lines.size(); idx++) {
         const Line line = lines[idx];
         if (skip_line(line, is_multi_line_comment)) {
@@ -119,7 +121,7 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
             idx = result.resume_at;
             continue;
         }
-
+        */
         /*
         InstructionTaxonomy& instr = file.routine.append(line);
         DefaultPeeker peek = DefaultPeeker(lines, idx);
@@ -143,8 +145,43 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
 
             idx = routine_result.offset;
         }*/
-    }
+    //}
     return file;
+}
+
+void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent) {
+    bool is_multi_line_comment = false;
+    for (size_t idx = position; idx < lines.size(); idx++) {
+        const Line line = lines[idx];
+        if (skip_line(line, is_multi_line_comment)) {
+            continue;
+        }
+        routine.append(line);
+        if (idx == lines.size() - 1) {
+            continue;
+        }
+        int indentation_diff = indentation.diff(lines[idx + 1].starting_whitespace());
+        if (indentation_diff == 0) {
+            continue;
+        }
+        if (indentation_diff == 2) {
+            continue; // handle error
+        }
+        if (indentation_diff == -1) {
+            continue; // goback
+        }
+
+        TaxStrat tax_strat = agent.tax_strat(line.first_word());
+        if (tax_strat.block_kind == NA) {
+            continue; //error
+        }
+        if (tax_strat.block_kind == INPUT) {
+            InputBlockResult result = scan_input_block(lines, idx + 1, indentation);
+            routine.current_instr().input = result.lines;
+            idx = result.resume_at;
+            continue;
+        }
+    }
 }
 
 
