@@ -1,6 +1,5 @@
 
 #include <optional>
-#include <sstream>
 #include "taxscan.h"
 
 FileTaxonomy empty_file_taxonomy() {
@@ -184,16 +183,15 @@ void scan_scan(const std::vector<Line>& lines, size_t position, Indentation& ind
         }
 
         if (tax_strat.block_kind == APPEND) {
-            // @TODO make joining lines more efficient
-            std::stringstream stream;
-            stream << line.crop_from_first_word().raw() << " ";
+            Line input = line.crop_from_first_word();
+            input.append(' ');
             for (size_t i = 0; i < result.lines.size(); i++) {
-                stream << result.lines[i].trim();
+                input.append(result.lines[i].trim());
                 if (i != result.lines.size() - 1) {
-                    stream << " ";
+                    input.append(' ');
                 }
             }
-            routine.current_instr().input = {parse(stream.str())};
+            routine.current_instr().input = {input};
             continue;
         }
     }

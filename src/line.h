@@ -30,7 +30,7 @@ struct Line {
 
     std::string raw() const;
     std::string starting_whitespace() const;
-    std::string trim() const;
+    Line trim() const;
     const std::string& first_word() const;
     bool only_whitespace() const;
     bool empty() const;
@@ -40,6 +40,8 @@ struct Line {
     bool only_non_whitespace_equals(const std::string& value) const;
     bool is_seq_of_strings(const std::vector<std::string>& values) const;
     Line crop_from_first_word() const;
+    void append(const Line& line);
+    void append(char str);
 };
 
 Line parse(std::string value);

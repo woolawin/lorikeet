@@ -162,8 +162,30 @@ bool Line::empty() const {
     return this->tokens.empty();
 }
 
-std::string Line::trim() const {
-    std::stringstream stream;
+std::string Line::starting_whitespace() const {
+    if (this->start == 0) {
+        return "";
+    }
+    return this->tokens[0].value;
+}
+
+void calculate_start_and_stops(Line& line) {
+    for (size_t idx = 0; idx < line.tokens.size(); idx++) {
+        const LineToken token = line.tokens[idx];
+        if (token.kind != WHITESPACE) {
+            line.end = idx;
+        }
+        if (token.kind != WHITESPACE && line.start == -1) {
+            line.start = idx;
+        }
+        if (token.kind == WORD && line.word_start == -1) {
+            line.word_start = idx;
+        }
+    }
+}
+
+Line Line::trim() const {
+    Line line = {.start = -1, .end = -1, .word_start = -1, .tokens = {}};
     const size_t start = this->tokens[0].kind == WHITESPACE
         ? 1
         : 0;
@@ -171,16 +193,17 @@ std::string Line::trim() const {
         ? this->tokens.size() - 1
         : this->tokens.size();
     for (size_t idx = start; idx < end; idx++) {
-        stream << this->tokens[idx].value;
+        line.tokens.push_back(this->tokens[idx]);
     }
-    return stream.str();
+    calculate_start_and_stops(line);
+    return line;
 }
 
-std::string Line::starting_whitespace() const {
-    if (this->start == 0) {
-        return "";
+void Line::append(const Line& line) {
+    for (LineToken token : line.tokens) {
+        this->tokens.push_back(token);
     }
-    return this->tokens[0].value;
+    calculate_start_and_stops(*this);
 }
 
 TokenKind kind(char c) {
@@ -194,6 +217,11 @@ TokenKind kind(char c) {
         return WHITESPACE;
     }
     return SYMBOL;
+}
+
+void Line::append(char value) {
+    this->tokens.push_back({ .kind = kind(value), .value = std::string(1, value) });
+    calculate_start_and_stops(*this);
 }
 
 Line parse(std::string value) {
@@ -222,23 +250,9 @@ Line parse(std::string value) {
 
         current->value += std::string(1, c);
     }
-
-    int start = -1;
-    int end = -1;
-    int word_start = -1;
-    for (size_t idx = 0; idx < tokens.size(); idx++) {
-        const LineToken token = tokens[idx];
-        if (token.kind != WHITESPACE) {
-            end = idx;
-        }
-        if (token.kind != WHITESPACE && start == -1) {
-            start = idx;
-        }
-        if (token.kind == WORD && word_start == -1) {
-            word_start = idx;
-        }
-    }
-    return {.start = start, .end = end, .word_start = word_start, .tokens = tokens};
+    Line line = {.start = -1, .end = -1, .word_start = -1, .tokens = tokens};
+    calculate_start_and_stops(line);
+    return line;
 }
 
 int Indentation::diff(const std::string& next_indentation) const {
