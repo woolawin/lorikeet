@@ -44,6 +44,7 @@ TEST(TaxScan, SingleInstruction) {
 	EXPECT_EQ(actual, expected);
 }
 
+
 TEST(TaxScan, SingleInstructionWithDirectQuotes) {
 	std::vector<std::string> lines = {
 		"`stdout` 'Hello'",
@@ -65,6 +66,7 @@ TEST(TaxScan, SingleInstructionWithDirectQuotes) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanLinesOneByOne) {
 	std::vector<std::string> lines = {
@@ -106,6 +108,7 @@ TEST(TaxScan, ScanLinesOneByOne) {
 	EXPECT_EQ(actual, expected);
 }
 
+
 TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
@@ -141,6 +144,7 @@ TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 	std::vector<std::string> lines = {
@@ -182,6 +186,7 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
 	std::vector<std::string> lines = {
@@ -269,6 +274,7 @@ TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 	EXPECT_EQ(actual, expected);
 }
 
+
 TEST(TaxScan, ScanIgnoresComments) {
 	std::vector<std::string> lines = {
 		"print 'A'",
@@ -307,6 +313,7 @@ TEST(TaxScan, ScanIgnoresComments) {
 	EXPECT_EQ(actual, expected);
 }
 
+
 TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 	std::vector<std::string> lines = {
 		"curl -X POST",
@@ -339,6 +346,7 @@ TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanWithSubroutine) {
 	std::vector<std::string> lines = {
@@ -383,6 +391,7 @@ TEST(TaxScan, ScanWithSubroutine) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 	std::vector<std::string> lines = {
@@ -442,6 +451,7 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 	EXPECT_EQ(actual, expected);
 }
 
+
 TEST(TaxScan, ScanWithMultipleBranches) {
 	std::vector<std::string> lines = {
 		"print 'Hello'",
@@ -499,6 +509,7 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 	std::vector<std::string> lines = {
@@ -569,6 +580,7 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 	std::vector<std::string> lines = {
