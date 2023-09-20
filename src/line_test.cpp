@@ -264,45 +264,45 @@ TEST(Line, MinusFirstWordWhenFirstTokensAreWhitespace) {
 
 TEST(Indentation, SameIndentationWithNoLevels) {
     Indentation indentation = { .indentations = {} };
-    EXPECT_EQ(indentation.diff(""), SAME);
+    EXPECT_EQ(indentation.diff(""), IndentationDiff::Same);
 }
 
 TEST(Indentation, FirstIndentationLevel) {
     Indentation indentation = { .indentations = {} };
-    EXPECT_EQ(indentation.diff(" "), INCREASE);
+    EXPECT_EQ(indentation.diff(" "), IndentationDiff::Increase);
 }
 
 TEST(Indentation, FirstLevelOfIndentation) {
     Indentation indentation = { .indentations = { "" } };
-    EXPECT_EQ(indentation.diff(" "), INCREASE);
+    EXPECT_EQ(indentation.diff(" "), IndentationDiff::Increase);
 }
 
 TEST(Indentation, SecondLevelOfIndentation) {
     Indentation indentation = { .indentations = { "", "  " } };
-    EXPECT_EQ(indentation.diff("    "), INCREASE);
+    EXPECT_EQ(indentation.diff("    "), IndentationDiff::Increase);
 }
 
 TEST(Indentation, SameIndentationLevelOnNonFirstLevel) {
     Indentation indentation = { .indentations = { "", "  " } };
-    EXPECT_EQ(indentation.diff("  "), SAME);
+    EXPECT_EQ(indentation.diff("  "), IndentationDiff::Same);
 }
 
 TEST(Indentation, IndentationWentBackOneLevel) {
     Indentation indentation = { .indentations = { "", "  " } };
-    EXPECT_EQ(indentation.diff(""), DECREASE);
+    EXPECT_EQ(indentation.diff(""), IndentationDiff::Decrease);
 }
 
 TEST(Indentation, IndentationWentBackOneLevelButNotToFirstLevel) {
     Indentation indentation = { .indentations = { "", " ", "  ", "   ", "    " } };
-    EXPECT_EQ(indentation.diff("  "), DECREASE);
+    EXPECT_EQ(indentation.diff("  "), IndentationDiff::Decrease);
 }
 
 TEST(Indentation, WrongIndentation) {
     Indentation indentation = { .indentations = { "", " ", "  " } };
-    EXPECT_EQ(indentation.diff(" \t"), ERROR);
+    EXPECT_EQ(indentation.diff(" \t"), IndentationDiff::Error);
 }
 
 TEST(Indentation, WrongIndentation2) {
     Indentation indentation = { .indentations = { "", " ", "  ", "   " } };
-    EXPECT_EQ(indentation.diff(" \t "), ERROR);
+    EXPECT_EQ(indentation.diff(" \t "), IndentationDiff::Error);
 }

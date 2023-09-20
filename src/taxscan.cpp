@@ -94,11 +94,11 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
             continue;
         }
         const std::string starting_whitespace = lines[idx + 1].starting_whitespace();
-        int indentation_diff = indentation.diff(starting_whitespace);
-        if (indentation_diff == SAME) {
+        const IndentationDiff indentation_diff = indentation.diff(starting_whitespace);
+        if (indentation_diff == IndentationDiff::Same) {
             continue;
         }
-        if (indentation_diff == ERROR) {
+        if (indentation_diff == IndentationDiff::Error) {
             continue; // handle error
         }
 
@@ -165,15 +165,15 @@ BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, con
         if (skip_line(line, is_multi_line_comment)) {
             continue;
         }
-        const int diff = indentation.diff(line.starting_whitespace());
-        if (diff == ERROR) {
+        const IndentationDiff diff = indentation.diff(line.starting_whitespace());
+        if (diff == IndentationDiff::Error) {
             return { .lines = block, .resume_at = idx - 1 }; // @TODO handle error
         }
-        if (diff == INCREASE) {
+        if (diff == IndentationDiff::Increase) {
             block.push_back(line);
             continue;
         }
-        if (diff == DECREASE || line.first_word() != "end") {
+        if (diff == IndentationDiff::Decrease || line.first_word() != "end") {
             return { .lines = block, .resume_at = idx - 1 };
         }
         return { .lines = block, .resume_at = idx };

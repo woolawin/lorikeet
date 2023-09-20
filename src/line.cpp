@@ -271,20 +271,22 @@ std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<
 
 IndentationDiff Indentation::diff(const std::string& next_indentation) const {
     if (this->indentations.empty()) {
-        return next_indentation.size() == 0 ? SAME : INCREASE;
+        return next_indentation.size() == 0
+            ? IndentationDiff::Same
+            : IndentationDiff::Increase;
     }
     if (next_indentation == this->indentations.back()) {
-        return SAME;
+        return IndentationDiff::Same;
     }
     for (size_t idx = 0; idx < this->indentations.size(); idx++) {
         if (this->indentations[idx] == next_indentation) {
-            return DECREASE;
+            return IndentationDiff::Decrease;
         }
     }
     if (next_indentation.rfind(this->indentations.back(), 0) != 0) {
-        return ERROR;
+        return IndentationDiff::Error;
     }
-    return INCREASE;
+    return IndentationDiff::Increase;
 }
 
 Indentation Indentation::indent(const std::string& indentation) const {
