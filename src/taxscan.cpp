@@ -75,9 +75,7 @@ FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent)
 
     Indentation indentation;
     std::vector<Line> lines;
-    for (size_t idx = 0; idx < lines_raw.size(); idx++) {
-        lines.push_back(parse(lines_raw[idx]));
-    }
+    parse(lines_raw, lines);
     scan_routine(lines, indentation, file.routine, agent);
     return file;
 }
@@ -127,7 +125,7 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
             continue;
         }
         // We must be in routine
-        BranchTaxonomy& branch = instr.branch(true, parse(""));
+        BranchTaxonomy& branch = instr.branch(true, parse(0, ""));
         Indentation new_indentation = indentation.indent(starting_whitespace);
         scan_routine(result.lines, new_indentation, branch.routine, agent);
         idx = scan_branches(lines, idx, tax_strat, indentation, instr, agent);

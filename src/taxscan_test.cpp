@@ -34,7 +34,7 @@ TEST(TaxScan, SingleInstruction) {
 			.instructions = {
 				{
 					.name =     "stdout",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				}
 			}
@@ -56,7 +56,7 @@ TEST(TaxScan, SingleInstructionWithDirectQuotes) {
 			.instructions = {
 				{
 					.name =     "stdout",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				}
 			}
@@ -81,22 +81,22 @@ TEST(TaxScan, ScanLinesOneByOne) {
 			.instructions = {
 				{
 					.name =     "stdout",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =     "var",
-					.input =    {parse(" name := 'bob'")},
+					.input =    {parse(2, " name := 'bob'")},
 					.branches = {}
 				},
 				{
 					.name =     "debug",
-					.input =    {parse("()")},
+					.input =    {parse(3, "()")},
 					.branches = {}
 				},
 				{
 					.name =     "exit",
-					.input =    {parse("")},
+					.input =    {parse(4, "")},
 					.branches = {}
 				}
 			}
@@ -123,15 +123,15 @@ TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name = "hexdump",
 					.input = {
-						parse("	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse("   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse("	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(4, "   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(5, "	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				}
@@ -159,21 +159,21 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name = "hexdump",
 					.input = {
-						parse("	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse("   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse("	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(4, "   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(5, "	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'done'")},
+					.input =    {parse(6, " 'done'")},
 					.branches = {}
 				},
 			}
@@ -202,21 +202,21 @@ TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name = "hexdump",
 					.input = {
-						parse("	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse("   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse("	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(5, "   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(7, "	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'done'")},
+					.input =    {parse(8, " 'done'")},
 					.branches = {}
 				},
 			}
@@ -245,21 +245,21 @@ TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'start'")},
+					.input =    {parse(1, " 'start'")},
 					.branches = {}
 				},
 				{
 					.name = "hexdump",
 					.input = {
-						parse("\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse("\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse("\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(4, "\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(5, "\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'done'")},
+					.input =    {parse(7, " 'done'")},
 					.branches = {},
 				}
 			}
@@ -287,17 +287,17 @@ TEST(TaxScan, ScanIgnoresComments) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'A'")},
+					.input =    {parse(1, " 'A'")},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'C'")},
+					.input =    {parse(3, " 'C'")},
 					.branches   {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'G'")},
+					.input =    {parse(7, " 'G'")},
 					.branches = {}
 				}
 			}
@@ -324,13 +324,13 @@ TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 				{
 					.name = "curl",
 					.input = {
-						parse(" -X POST http://foo/bar --header Authorization: hello --body 'baz'")
+						parse(1, " -X POST http://foo/bar --header Authorization: hello --body 'baz'")
 					},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'done'")},
+					.input =    {parse(5, " 'done'")},
 					.branches = {},
 				}
 			}
@@ -355,21 +355,21 @@ TEST(TaxScan, ScanWithSubroutine) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'World'")},
+										.input =    {parse(3, " 'World'")},
 										.branches = {}
 									}
 								}
@@ -400,21 +400,21 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'World'")},
+										.input =    {parse(3, " 'World'")},
 										.branches = {}
 									}
 								}
@@ -422,12 +422,12 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 						},
 						{
 							.default_branch = false,
-							.input =         parse(" if false"),
+							.input =         parse(4, " if false"),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =     {parse(" 'Bye'")},
+										.input =     {parse(5, " 'Bye'")},
 										.branches = {}
 									}
 								}
@@ -458,21 +458,21 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'World'")},
+										.input =    {parse(3, " 'World'")},
 										.branches = {}
 									}
 								}
@@ -480,12 +480,12 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 						},
 						{
 							.default_branch = false,
-							.input =         parse(""),
+							.input =         parse(4, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =     {parse(" 'Bye'")},
+										.input =     {parse(5, " 'Bye'")},
 										.branches = {}
 									}
 								}
@@ -499,7 +499,6 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 
 	EXPECT_EQ(actual, expected);
 }
-
 
 TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 	std::vector<std::string> lines = {
@@ -519,26 +518,26 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'World'")},
+										.input =    {parse(3, " 'World'")},
 										.branches = {}
 									},
 									{
 										.name =     "print",
-										.input =    {parse(" 'Earth'")},
+										.input =    {parse(4, " 'Earth'")},
 										.branches = {}
 									}
 								}
@@ -546,17 +545,17 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 						},
 						{
 							.default_branch = false,
-							.input =         parse(""),
+							.input =         parse(5, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =     {parse(" 'Bye'")},
+										.input =     {parse(6, " 'Bye'")},
 										.branches = {}
 									},
 									{
 										.name =     "print",
-										.input =     {parse(" 'Cheerio'")},
+										.input =     {parse(7, " 'Cheerio'")},
 										.branches = {}
 									}
 								}
@@ -570,7 +569,6 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 
 	EXPECT_EQ(actual, expected);
 }
-
 
 TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 	std::vector<std::string> lines = {
@@ -590,21 +588,21 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'World'")},
+										.input =    {parse(3, " 'World'")},
 										.branches = {}
 									}
 								}
@@ -612,12 +610,12 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 						},
 						{
 							.default_branch = false,
-							.input =         parse(""),
+							.input =         parse(5, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =     {parse(" 'Cheerio'")},
+										.input =     {parse(7, " 'Cheerio'")},
 										.branches = {}
 									}
 								}
@@ -650,35 +648,35 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'World'")},
+										.input =    {parse(3, " 'World'")},
 										.branches = {}
 									},
 									{
 										.name =  "if",
-										.input = {parse(" say_goodbye")},
+										.input = {parse(4, " say_goodbye")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse(""),
+												.input =         parse(0, ""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse(" 'Bye'")},
+															.input =    {parse(5, " 'Bye'")},
 															.branches = {}
 														}
 													}
@@ -697,6 +695,7 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanInstructionNestedSubroutines) {
 	std::vector<std::string> lines = {
@@ -716,35 +715,35 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'Hello'")},
+					.input =    {parse(1, " 'Hello'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'World'")},
+										.input =    {parse(3, " 'World'")},
 										.branches = {}
 									},
 									{
 										.name =  "if",
-										.input = {parse(" say_goodbye")},
+										.input = {parse(4, " say_goodbye")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse(""),
+												.input =         parse(0, ""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse(" 'Bye'")},
+															.input =    {parse(5, " 'Bye'")},
 															.branches = {}
 														}
 													}
@@ -754,7 +753,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 									},
 									{
 										.name =     "print",
-										.input =    {parse(" 'done'")},
+										.input =    {parse(6, " 'done'")},
 										.branches = {}
 									}
 								}
@@ -764,7 +763,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'exit'")},
+					.input =    {parse(7, " 'exit'")},
 					.branches = {}
 				}
 			}
@@ -773,6 +772,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 	std::vector<std::string> lines = {
@@ -808,59 +808,59 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'A'")},
+					.input =    {parse(1, " 'A'")},
 					.branches = {},
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name =     "print",
-										.input =    {parse(" 'B'")},
+										.input =    {parse(3, " 'B'")},
 										.branches  {}
 									},
 									{
 										.name =  "if",
-										.input = {parse(" say_goodbye")},
+										.input = {parse(4, " say_goodbye")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse(""),
+												.input =         parse(0, ""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse(" 'C'")},
+															.input =    {parse(5, " 'C'")},
 															.branches = {}
 														},
 														{
 															.name =     "print",
-															.input =    {parse(" 'D'")},
+															.input =    {parse(6, " 'D'")},
 															.branches = {}
 														},
 														{
 															.name =  "if",
-															.input = {parse(" yes")},
+															.input = {parse(7, " yes")},
 															.branches = {
 																{
 																	.default_branch = true,
-																	.input =         parse(""),
+																	.input =         parse(0, ""),
 																	.routine = {
 																		.instructions = {
 																			{
 																				.name =     "print",
-																				.input =    {parse(" 'D-1'")},
+																				.input =    {parse(8, " 'D-1'")},
 																				.branches = {}
 																			},
 																			{
 																				.name =     "print",
-																				.input =    {parse(" 'D-2'")},
+																				.input =    {parse(9, " 'D-2'")},
 																				.branches = {}
 																			}
 																		}
@@ -870,7 +870,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 														},
 														{
 															.name =     "print",
-															.input =    {parse(" 'E'")},
+															.input =    {parse(11, " 'E'")},
 															.branches = {}
 														}
 													}
@@ -880,31 +880,31 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 									},
 									{
 										.name =     "print",
-										.input =    {parse(" 'F'")},
+										.input =    {parse(13, " 'F'")},
 										.branches = {}
 									},
 									{
 										.name =     "print",
-										.input =    {parse(" 'G'")},
+										.input =    {parse(14, " 'G'")},
 										.branches = {}
 									},
 									{
 										.name =  "if",
-										.input = {parse(" !false")},
+										.input = {parse(15, " !false")},
 										.branches = {
 											{
 												.default_branch = true,
-												.input =         parse(""),
+												.input =         parse(0, ""),
 												.routine = {
 													.instructions = {
 														{
 															.name =     "print",
-															.input =    {parse(" 'H'")},
+															.input =    {parse(16, " 'H'")},
 															.branches = {}
 														},
 														{
 															.name =     "print",
-															.input =    {parse(" 'I'")},
+															.input =    {parse(17, " 'I'")},
 															.branches = {}
 														}
 													}
@@ -914,12 +914,12 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 									},
 									{
 										.name =     "print",
-										.input =    {parse(" 'J'")},
+										.input =    {parse(19, " 'J'")},
 										.branches = {}
 									},
 									{
 										.name =     "print",
-										.input =    {parse(" 'K'")},
+										.input =    {parse(20, " 'K'")},
 										.branches = {}
 									}
 								}
@@ -929,12 +929,12 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'L'")},
+					.input =    {parse(22, " 'L'")},
 					.branches = {}
 				},
 				{
 					.name =     "print",
-					.input =    {parse(" 'M'")},
+					.input =    {parse(23, " 'M'")},
 					.branches = {}
 				}
 			}
@@ -943,6 +943,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 
 	EXPECT_EQ(actual, expected);
 }
+
 
 TEST(TaxScan, ScanAppendWithinSubroutine) {
 	std::vector<std::string> lines = {
@@ -964,30 +965,30 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse(" 'start'")},
+					.input =    {parse(1, " 'start'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse(" true")},
+					.input = {parse(2, " true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse(""),
+							.input =         parse(0, ""),
 							.routine = {
 								.instructions = {
 									{
 										.name = "hexdump",
 										.input = {
-											parse("\t\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-											parse("\t\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-											parse("\t\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+											parse(4, "\t\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+											parse(5, "\t\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+											parse(6, "\t\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 										},
 										branches: {}
 									},
 									{
 										.name =     "print",
-										.input =    {parse(" 'done'")},
+										.input =    {parse(8, " 'done'")},
 										.branches = {}
 									}
 								}

@@ -3,8 +3,9 @@
 #include "line.h"
 
 TEST(Line, TwoWordsWithWhitespaceBetween) {
-    Line actual = parse("print data");
+    Line actual = parse(1, "print data");
     Line expected = {
+        .line_num = 1,
         .start = 0,
         .end = 2,
         .word_start = 0,
@@ -28,8 +29,9 @@ TEST(Line, TwoWordsWithWhitespaceBetween) {
 }
 
 TEST(Line, BackquotesMakesWords) {
-    Line actual = parse("`clang++` { `}`");
+    Line actual = parse(1, "`clang++` { `}`");
     Line expected = {
+        .line_num = 1,
         .start = 0,
         .end = 4,
         .word_start = 0,
@@ -61,8 +63,9 @@ TEST(Line, BackquotesMakesWords) {
 }
 
 TEST(Line, WithWhitespaceAtStartAndEnd) {
-    Line actual = parse(" \t  \t print data\t\t  ");
+    Line actual = parse(1, " \t  \t print data\t\t  ");
     Line expected = {
+        .line_num = 1,
         .start = 1,
         .end = 3,
         .word_start = 1,
@@ -94,8 +97,9 @@ TEST(Line, WithWhitespaceAtStartAndEnd) {
 }
 
 TEST(Line, SymbolAtEndOfLine) {
-    Line actual = parse("if true {");
+    Line actual = parse(1, "if true {");
     Line expected = {
+        .line_num = 1,
         .start = 0,
         .end = 4,
         .word_start = 0,
@@ -127,8 +131,9 @@ TEST(Line, SymbolAtEndOfLine) {
 }
 
 TEST(Line, SymbolsInMiddleWithoutSpaces) {
-    Line actual = parse("count+=1");
+    Line actual = parse(1, "count+=1");
     Line expected = {
+        .line_num = 1,
         .start = 0,
         .end = 3,
         .word_start = 0,
@@ -156,8 +161,9 @@ TEST(Line, SymbolsInMiddleWithoutSpaces) {
 }
 
 TEST(Line, WhitespaceSymbolWhitespaceThenWord) {
-    Line actual = parse("\t| echo");
+    Line actual = parse(1, "\t| echo");
     Line expected = {
+        .line_num = 1,
         .start = 1,
         .end = 3,
         .word_start = 3,
@@ -186,73 +192,73 @@ TEST(Line, WhitespaceSymbolWhitespaceThenWord) {
 
 TEST(Line, HasSymbolSeqNoSymbols) {
 	std::string line = "foo bar";
-	EXPECT_FALSE(parse(line).has_symbol_seq(0, "=>"));
+	EXPECT_FALSE(parse(1, line).has_symbol_seq(0, "=>"));
 }
 
 TEST(Line, HasSymbolHasEq) {
 	std::string line = "foo=>bar";
-	EXPECT_TRUE(parse(line).has_symbol_seq(1, "=>"));
+	EXPECT_TRUE(parse(1, line).has_symbol_seq(1, "=>"));
 }
 
 TEST(Line, HasSymbolInsufficientLength) {
 	std::string line = "foo:=";
-	EXPECT_FALSE(parse(line).has_symbol_seq(1, ":=>"));
+	EXPECT_FALSE(parse(1, line).has_symbol_seq(1, ":=>"));
 }
 
 TEST(Line, HasSymbolAtEnd) {
 	std::string line = "foo ||";
-	EXPECT_TRUE(parse(line).has_symbol_seq(2, "||"));
+	EXPECT_TRUE(parse(1, line).has_symbol_seq(2, "||"));
 }
 
 TEST(Line, LineEndsWithJustSymbol) {
 	std::string line = "}";
-	EXPECT_TRUE(parse(line).ends_with_symbol_seq("}"));
+	EXPECT_TRUE(parse(1, line).ends_with_symbol_seq("}"));
 }
 
 TEST(Line, EndsWithSymbolSeqWithWordBeforeSymbolSeq) {
 	std::string line = " foo }";
-	EXPECT_TRUE(parse(line).ends_with_symbol_seq("}"));
+	EXPECT_TRUE(parse(1, line).ends_with_symbol_seq("}"));
 }
 
 TEST(Line, EndsWithSymbolSeqWithMultiCharacterSymbol) {
 	std::string line = "blah blah >#";
-	EXPECT_TRUE(parse(line).ends_with_symbol_seq(">#"));
+	EXPECT_TRUE(parse(1, line).ends_with_symbol_seq(">#"));
 }
 
 TEST(Line, LineDoesNotEndWithSymbol) {
 	std::string line = "blah blah ># fff";
-	EXPECT_FALSE(parse(line).ends_with_symbol_seq(">#"));
+	EXPECT_FALSE(parse(1, line).ends_with_symbol_seq(">#"));
 }
 
 TEST(Line, IsSeqOfStrings) {
 	std::string line = "} else {";
-	EXPECT_TRUE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+	EXPECT_TRUE(parse(1, line).is_seq_of_strings({"}", "else", "{"}));
 }
 
 TEST(Line, IsSeqOfStringsIgnoringWhitespace) {
 	std::string line = "\t\t\t   }   \telse   \t \t  {  ";
-	EXPECT_TRUE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+	EXPECT_TRUE(parse(1, line).is_seq_of_strings({"}", "else", "{"}));
 }
 
 TEST(Line, IsNotSeqOfStringsIfEndsWithMoreTokens) {
 	std::string line = "} else { then";
-	EXPECT_FALSE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+	EXPECT_FALSE(parse(1, line).is_seq_of_strings({"}", "else", "{"}));
 }
 
 TEST(Line, IsNotSeqOfStringsIfStartsWithDifferentToken) {
 	std::string line = "do else {";
-	EXPECT_FALSE(parse(line).is_seq_of_strings({"}", "else", "{"}));
+	EXPECT_FALSE(parse(1, line).is_seq_of_strings({"}", "else", "{"}));
 }
 
 TEST(Line, MinusFirstWordWhenFirstTokenIsWord) {
-    Line actual = parse("foo bar baz");
-    Line expected = parse(" bar baz");
+    Line actual = parse(1, "foo bar baz");
+    Line expected = parse(1, " bar baz");
     EXPECT_EQ(actual.crop_from_first_word(), expected);
 }
 
 TEST(Line, MinusFirstWordWhenFirstTokensAreWhitespace) {
-    Line actual = parse("  \t  \tfoo.doh doh\t");
-    Line expected = parse(".doh doh\t");
+    Line actual = parse(1, "  \t  \tfoo.doh doh\t");
+    Line expected = parse(1, ".doh doh\t");
     EXPECT_EQ(actual.crop_from_first_word(), expected);
 }
 

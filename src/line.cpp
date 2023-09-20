@@ -28,12 +28,13 @@ bool Line::operator==(const Line& other) const {
    return this->start == other.start
         && this->end == other.end
         && this->word_start == other.word_start
+        && this->line_num == other.line_num
         && this->tokens == other.tokens;
 }
 
 std::ostream& operator<<(std::ostream& os, const Line& line) {
     os << "Line(\n\tstart=" << line.start << "\n\tend=" << line.end << "\n\tword_start=" << line.word_start;
-    os << "\n\ttokens=[\n";
+    os << "\n\tline_num=" << line.line_num << "\n\ttokens=[\n";
     for (const LineToken& token : line.tokens) {
         os << "\t\t" << token << "\n";
     }
@@ -155,7 +156,13 @@ Line Line::crop_from_first_word() const {
             word_start = idx - crop_offset;
         }
     }
-    return {.start = start, .end = end, .word_start = word_start, .tokens = new_tokens};
+    return {
+        .line_num = this->line_num,
+        .start = start,
+        .end = end,
+        .word_start = word_start,
+        .tokens = new_tokens
+    };
 }
 
 bool Line::empty() const {
@@ -185,7 +192,7 @@ void calculate_start_and_stops(Line& line) {
 }
 
 Line Line::trim() const {
-    Line line = {.start = -1, .end = -1, .word_start = -1, .tokens = {}};
+    Line line = { .line_num = this->line_num, .start = -1, .end = -1, .word_start = -1, .tokens = {} };
     const size_t start = this->tokens[0].kind == WHITESPACE
         ? 1
         : 0;
@@ -224,7 +231,7 @@ void Line::append(char value) {
     calculate_start_and_stops(*this);
 }
 
-Line parse(std::string value) {
+Line parse(int line_num, std::string value) {
     LineToken* current = nullptr;
     std::vector<LineToken> tokens;
     bool in_backquotes = false;
@@ -250,9 +257,16 @@ Line parse(std::string value) {
 
         current->value += std::string(1, c);
     }
-    Line line = {.start = -1, .end = -1, .word_start = -1, .tokens = tokens};
+    Line line = { .line_num = line_num, .start = -1, .end = -1, .word_start = -1, .tokens = tokens };
     calculate_start_and_stops(line);
     return line;
+}
+
+std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<Line>& lines) {
+    for(int i = 0; i < lines_raw.size(); i++) {
+        lines.push_back(parse(i + 1, lines_raw[i]));
+    }
+    return lines;
 }
 
 IndentationDiff Indentation::diff(const std::string& next_indentation) const {
