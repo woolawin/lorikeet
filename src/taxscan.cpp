@@ -12,9 +12,9 @@ FileTaxonomy err_file(std::optional<TaxScanError>& err) {
 }
 
 BranchTaxonomy new_branch(bool is_default, const Line& input) {
-	return {
-		.default_branch = is_default,
-		.input = input,
+    return {
+	    .default_branch = is_default,
+	    .input = input,
 		.routine = { .instructions = {} }
 	};
 }
@@ -38,8 +38,8 @@ InstructionTaxonomy& RoutineTaxonomy::append(const Line& line) {
 }
 
 void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, int start, int count) {
-	for (int idx = start; idx < start + count; idx++) {
-		instr.input.push_back(lines[idx]);
+    for (int idx = start; idx < start + count; idx++) {
+        instr.input.push_back(lines[idx]);
 	}
 }
 

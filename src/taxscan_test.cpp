@@ -44,6 +44,28 @@ TEST(TaxScan, SingleInstruction) {
 	EXPECT_EQ(actual, expected);
 }
 
+TEST(TaxScan, SingleInstructionWithDirectQuotes) {
+	std::vector<std::string> lines = {
+		"`stdout` 'Hello'",
+	};
+
+	FileTaxonomy actual  = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.routine = {
+			.instructions = {
+				{
+					.name =     "stdout",
+					.input =    {parse(" 'Hello'")},
+					.branches = {}
+				}
+			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
 TEST(TaxScan, ScanLinesOneByOne) {
 	std::vector<std::string> lines = {
 		"stdout 'Hello'",
@@ -921,18 +943,18 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 
 	EXPECT_EQ(actual, expected);
 }
-/*
+
 TEST(TaxScan, ScanAppendWithinSubroutine) {
 	std::vector<std::string> lines = {
 		"print 'start'",
-		"if true {",
+		"if true",
 		"	hexdump",
 		"		0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46",
 		"		0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
 		"		0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a",
 		"	end",
 		"	print 'done'",
-		"}"
+		""
 	};
 
 	FileTaxonomy actual = scan_file(lines, agent);
@@ -942,22 +964,21 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 			.instructions = {
 				{
 					.name =     "print",
-					.input =    {parse("print 'start'")},
+					.input =    {parse(" 'start'")},
 					.branches = {}
 				},
 				{
 					.name =  "if",
-					.input = {parse("if true {")},
+					.input = {parse(" true")},
 					.branches = {
 						{
 							.default_branch = true,
-							.input =         parse("if true {"),
+							.input =         parse(""),
 							.routine = {
 								.instructions = {
 									{
 										.name = "hexdump",
 										.input = {
-											parse("	hexdump"),
 											parse("\t\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
 											parse("\t\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 											parse("\t\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
@@ -966,7 +987,7 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 									},
 									{
 										.name =     "print",
-										.input =    {parse("\tprint 'done'")},
+										.input =    {parse(" 'done'")},
 										.branches = {}
 									}
 								}
@@ -980,4 +1001,3 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 
 	EXPECT_EQ(actual, expected);
 }
-*/
