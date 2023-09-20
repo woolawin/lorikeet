@@ -45,19 +45,19 @@ void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, in
 
 
 TaxStrat value_strat() {
-    return { .parse_strat = VALUE, .block_function = NA };
+    return { .parse_strat = ParseStrat::Value, .block_function = BlockFunction::NA };
 }
 
 TaxStrat command_strat() {
-    return { .parse_strat = COMMAND, .block_function = APPEND };
+    return { .parse_strat = ParseStrat::Command, .block_function = BlockFunction::Append };
 }
 
 TaxStrat branch_strat(std::vector<std::string> branch_instr) {
-    return { .parse_strat = BRANCH, .block_function = ROUTINE, .branch_instr = branch_instr };
+    return { .parse_strat = ParseStrat::Branch, .block_function = BlockFunction::Routine, .branch_instr = branch_instr };
 }
 
 TaxStrat custom_strat(BlockFunction block_func) {
-    return { .parse_strat = CUSTOM, .block_function = block_func };
+    return { .parse_strat = ParseStrat::Custom, .block_function = block_func };
 }
 
 struct BlockResult {
@@ -103,30 +103,22 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
         }
 
         TaxStrat tax_strat = agent.tax_strat(line.first_word());
-        if (tax_strat.block_function == NA) {
+        if (tax_strat.block_function == BlockFunction::NA) {
             continue; //error
         }
         BlockResult result = scan_block(lines, idx + 1, indentation);
         idx = result.resume_at;
 
-        if (tax_strat.block_function == INPUT) {
+        if (tax_strat.block_function == BlockFunction::Append) {
             trim_lines(result.lines);
+            Line first_input = line.crop_from_first_word();
+            if (!first_input.empty()) {
+                result.lines.insert(result.lines.begin(), first_input);
+            }
             instr.input = result.lines;
             continue;
         }
 
-        if (tax_strat.block_function == APPEND) {
-            Line input = line.crop_from_first_word();
-            input.append(' ');
-            for (size_t i = 0; i < result.lines.size(); i++) {
-                input.append(result.lines[i].trim());
-                if (i != result.lines.size() - 1) {
-                    input.append(' ');
-                }
-            }
-            instr.input = {input};
-            continue;
-        }
         // We must be in routine
         BranchTaxonomy& branch = instr.branch(true, parse(0, ""));
         Indentation new_indentation = indentation.indent(starting_whitespace);

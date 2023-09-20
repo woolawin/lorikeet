@@ -56,19 +56,17 @@ struct FileTaxonomy {
 	friend std::ostream& operator<<(std::ostream& os, const FileTaxonomy& line);
 };
 
-enum ParseStrat {
-    VALUE,
-    COMMAND,
-    BRANCH,
-    CUSTOM
+enum class ParseStrat {
+    Value,
+    Command,
+    Branch,
+    Custom
 };
 
-enum BlockFunction {
-    DEFAULT,
+enum class BlockFunction {
     NA,
-    INPUT,
-    APPEND,
-    ROUTINE
+    Append,
+    Routine
 };
 
 struct TaxStrat {

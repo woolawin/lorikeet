@@ -14,7 +14,7 @@ class TestAgent: public Agent {
             return command_strat();
         }
         if (name == "hexdump") {
-            return custom_strat(INPUT);
+            return custom_strat(BlockFunction::Append);
         }
         return command_strat();
     }
@@ -331,7 +331,10 @@ TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 				{
 					.name = "curl",
 					.input = {
-						parse(1, " -X POST http://foo/bar --header Authorization: hello --body 'baz'")
+						parse(1, " -X POST"),
+						parse(2, "http://foo/bar"),
+						parse(3, "--header Authorization: hello"),
+						parse(4, "--body 'baz'")
 					},
 					.branches = {}
 				},
