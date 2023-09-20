@@ -129,9 +129,9 @@ TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 				{
 					.name = "hexdump",
 					.input = {
-						parse(3, "	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse(4, "   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse(5, "	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(4, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(5, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				}
@@ -165,9 +165,9 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 				{
 					.name = "hexdump",
 					.input = {
-						parse(3, "	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse(4, "   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse(5, "	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(4, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(5, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				},
@@ -208,9 +208,9 @@ TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
 				{
 					.name = "hexdump",
 					.input = {
-						parse(3, "	0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse(5, "   0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse(7, "	0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(5, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(7, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				},
@@ -251,9 +251,9 @@ TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 				{
 					.name = "hexdump",
 					.input = {
-						parse(3, "\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-						parse(4, "\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-						parse(5, "\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
+						parse(3, "0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+						parse(4, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+						parse(5, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
 					.branches = {}
 				},
@@ -980,9 +980,9 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 									{
 										.name = "hexdump",
 										.input = {
-											parse(4, "\t\t0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
-											parse(5, "\t\t0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
-											parse(6, "\t\t0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+											parse(4, "0000000 30 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46"),
+											parse(5, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
+											parse(6, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 										},
 										branches: {}
 									},

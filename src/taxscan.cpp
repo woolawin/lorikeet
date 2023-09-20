@@ -65,6 +65,8 @@ struct BlockResult {
     size_t resume_at;
 };
 
+void trim_lines(std::vector<Line>& lines);
+
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
 void scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent);
@@ -108,6 +110,7 @@ void scan_routine(const std::vector<Line>& lines, Indentation& indentation, Rout
         idx = result.resume_at;
 
         if (tax_strat.block_function == INPUT) {
+            trim_lines(result.lines);
             instr.input = result.lines;
             continue;
         }
@@ -207,4 +210,10 @@ bool skip_line(const Line& line, bool& is_multi_line_comment) {
         return true;
     }
     return false;
+}
+
+void trim_lines(std::vector<Line>& lines) {
+    for (int idx = 0; idx < lines.size(); idx++) {
+        lines[idx] = lines[idx].trim();
+    }
 }
