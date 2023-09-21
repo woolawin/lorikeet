@@ -24,7 +24,7 @@ struct CompilationError {
     bool operator==(const CompilationError& err) const;
 };
 
-CompilationError compile_error(InstructionDoesNotAcceptBlock err);
+CompilationError instruction_does_not_accept_block();
 
 
 

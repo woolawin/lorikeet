@@ -58,7 +58,7 @@ TEST(TaxScan, InstructionWithNABlockFunctionCanNotHaveBlock) {
 
 	FileTaxonomy expected = {
 		.errors = {
-		    compile_error((InstructionDoesNotAcceptBlock){})
+		    instruction_does_not_accept_block()
 		}
 	};
 

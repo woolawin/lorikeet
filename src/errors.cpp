@@ -8,10 +8,10 @@
 //void InstructionDoesNotAcceptBlock::print(std::ostream& os) const {
 //}
 
-CompilationError compile_error(InstructionDoesNotAcceptBlock err) {
+CompilationError instruction_does_not_accept_block() {
     CompilationError compile_err = {};
     compile_err.kind = ErrorKind::InstructionDoesNotAcceptBlock;
-    compile_err.data.instruction_does_not_accept_block = err;
+    compile_err.data.instruction_does_not_accept_block = {};
     return compile_err;
 }
 

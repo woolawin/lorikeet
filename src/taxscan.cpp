@@ -112,7 +112,7 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
 
         TaxStrat tax_strat = agent.tax_strat(line.first_word());
         if (tax_strat.block_function == BlockFunction::NA) {
-            return { compile_error((InstructionDoesNotAcceptBlock){}) };
+            return { instruction_does_not_accept_block() };
         }
         BlockResult result = scan_block(lines, idx + 1, indentation);
         idx = result.resume_at;
