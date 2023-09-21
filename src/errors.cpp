@@ -23,7 +23,7 @@ std::string InstructionDoesNotAcceptBlock::message() const {
     return "The current instruction does open a block, place this line on the same level";
 }
 
-#define case_eq(x) (this->data.x == other.data.x);
+#define case_eq(o, x) (this->data.x == o.data.x);
 
 bool CompilationError::operator==(const CompilationError& other) const {
     if (this->kind != other.kind) {
@@ -31,7 +31,7 @@ bool CompilationError::operator==(const CompilationError& other) const {
     }
     switch (this->kind) {
     case ErrorKind::InstructionDoesNotAcceptBlock:
-        return case_eq(instruction_does_not_accept_block);
+        return case_eq(other, instruction_does_not_accept_block);
     }
 
     return false;
