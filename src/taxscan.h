@@ -6,7 +6,9 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+
 #include "line.h"
+#include "errors.h"
 
 struct BranchTaxonomy;
 
@@ -39,18 +41,9 @@ struct BranchTaxonomy {
     friend std::ostream& operator<<(std::ostream& os, const BranchTaxonomy& line);
 };
 
-struct TaxScanError {
-	std::string message;
-	bool is_eof_error;
-
-	bool operator==(const TaxScanError& other) const;
-	friend std::ostream& operator<<(std::ostream& os, const TaxScanError& line);
-};
-
-
 struct FileTaxonomy {
 	RoutineTaxonomy routine;
-	std::optional<TaxScanError> err;
+	std::vector<CompilationError> errors;
 
 	bool operator==(const FileTaxonomy& other) const;
 	friend std::ostream& operator<<(std::ostream& os, const FileTaxonomy& line);

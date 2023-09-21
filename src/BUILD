@@ -6,10 +6,16 @@ cc_library(
 )
 
 cc_library(
+    name = "lk-errors",
+    srcs = ["errors.cpp"],
+    hdrs = ["errors.h"],
+)
+
+cc_library(
     name = "lk-taxscan",
     srcs = ["taxscan.cpp", "taxscan_types.cpp"],
     hdrs = ["taxscan.h"],
-    deps = [":lk-line"],
+    deps = [":lk-line", ":lk-errors"],
 )
 
 cc_binary(

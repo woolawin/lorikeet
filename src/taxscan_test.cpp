@@ -7,6 +7,9 @@
 class TestAgent: public Agent {
     public:
     TaxStrat tax_strat(const std::string& name) {
+        if (name == "noop") {
+            return value_strat();
+        }
         if (name == "if") {
             return branch_strat({"else"});
         }
@@ -38,6 +41,24 @@ TEST(TaxScan, SingleInstruction) {
 					.branches = {}
 				}
 			}
+		}
+	};
+
+	EXPECT_EQ(actual, expected);
+}
+
+
+TEST(TaxScan, InstructionWithNABlockFunctionCanNotHaveBlock) {
+	std::vector<std::string> lines = {
+	    "noop",
+		"   stdout 'Hello'"
+	};
+
+	FileTaxonomy actual  = scan_file(lines, agent);
+
+	FileTaxonomy expected = {
+		.errors = {
+		    compile_error((InstructionDoesNotAcceptBlock){})
 		}
 	};
 

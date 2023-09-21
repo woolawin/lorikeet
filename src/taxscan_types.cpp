@@ -20,7 +20,7 @@ void to_stream(std::ostream& os, const BranchTaxonomy& branch, int indentation);
 std::string to_string(bool boolean) {
     return boolean ? "true" : "false";
 }
-
+/*
 bool TaxScanError::operator==(const TaxScanError& other) const {
     return this->message == other.message
         && this->is_eof_error == other.is_eof_error;
@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& os, const TaxScanError& err) {
     os << "{message=\"" << err.message << "\" is_eof=" << to_string(err.is_eof_error) << "}";
     return os;
 }
-
+*/
 bool RoutineTaxonomy::operator==(const RoutineTaxonomy& other) const {
     return this->instructions == other.instructions;
 }
@@ -99,18 +99,17 @@ void to_stream(std::ostream& os, const InstructionTaxonomy& instr, int indentati
 
 bool FileTaxonomy::operator==(const FileTaxonomy& other) const {
     return this->routine == other.routine
-        && this->err == other.err;
+        && this->errors == other.errors;
 }
 
 std::ostream& operator<<(std::ostream& os, const FileTaxonomy& file) {
     os << std::endl << "{" << std::endl;
     os << indent(1) << "routine=";
     to_stream(os, file.routine, 1);
-    os << indent(1) << "err=";
-    if (file.err == std::nullopt) {
-        os << "na" << std::endl;
-    } else {
-        os << file.err.value() << std::endl;
+    if (!file.errors.empty()) {
+        // TODO print errors
+        //    os << indent(1) << "err=";
+        //os << file.err << std::endl;
     }
     os << "}" << std::endl;
     return os;
