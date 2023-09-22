@@ -9,7 +9,8 @@
 
 #include "line.h"
 #include "errors.h"
-#include "ports.h"
+#include "core_types.h"
+#include "state_machine.h"
 
 struct BranchTaxonomy;
 
@@ -48,54 +49,6 @@ struct FileTaxonomy {
 
 	bool operator==(const FileTaxonomy& other) const;
 	friend std::ostream& operator<<(std::ostream& os, const FileTaxonomy& line);
-};
-
-enum class ParseStrat {
-    Value,
-    Command,
-    Branch,
-    Custom
-};
-
-enum class BlockFunction {
-    NA,
-    Append,
-    Routine
-};
-
-struct TaxStrat {
-    ParseStrat parse_strat;
-    BlockFunction block_function;
-    std::vector<std::string> branch_instr;
-};
-
-TaxStrat value_strat();
-TaxStrat command_strat();
-TaxStrat branch_strat(std::vector<std::string> branch_instr);
-TaxStrat custom_strat(BlockFunction block_func);
-
-class StateMachine {
-    public:
-    virtual TaxStrat tax_strat(const std::string& instr_name) = 0;
-};
-
-struct CommandInstr {
-    std::string name;
-    std::string path;
-};
-
-class DefaultStateMachine: public StateMachine {
-    private:
-    Env& env;
-    Disk& disk;
-    std::vector<CommandInstr> command_instrs;
-
-    public:
-    DefaultStateMachine(Env& env, Disk& disk) : env(env), disk(disk), command_instrs({}) {
-    }
-
-    void init(const std::string& cwd);
-    TaxStrat tax_strat(const std::string& instr_name);
 };
 
 FileTaxonomy scan_file(const std::vector<std:: string>& lines, StateMachine& machine);
