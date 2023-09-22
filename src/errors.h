@@ -5,28 +5,18 @@
 #include <string>
 
 
-struct InstructionDoesNotAcceptBlock {
-    std::string message() const;
-    bool operator==(const InstructionDoesNotAcceptBlock& err) const;
-};
-
 enum class ErrorKind {
     InstructionDoesNotAcceptBlock
 };
 
 struct CompilationError {
-
     ErrorKind kind;
-    union {
-        InstructionDoesNotAcceptBlock instruction_does_not_accept_block;
-    } data;
+    std::string message;
 
     bool operator==(const CompilationError& err) const;
+    friend std::ostream& operator<<(std::ostream& os, const CompilationError& line);
 };
 
 CompilationError instruction_does_not_accept_block();
-
-
-
 
 #endif

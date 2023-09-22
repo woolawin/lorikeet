@@ -107,9 +107,11 @@ std::ostream& operator<<(std::ostream& os, const FileTaxonomy& file) {
     os << indent(1) << "routine=";
     to_stream(os, file.routine, 1);
     if (!file.errors.empty()) {
-        // TODO print errors
-        //    os << indent(1) << "err=";
-        //os << file.err << std::endl;
+      os << indent(1) << "errors=[" << std::endl;
+      for (CompilationError error : file.errors) {
+        os << indent(2) << error << std::endl;
+      }
+      os << indent(1) << "]" << std::endl;
     }
     os << "}" << std::endl;
     return os;
