@@ -58,7 +58,7 @@ TEST(TaxScan, InstructionWithNABlockFunctionCanNotHaveBlock) {
 
 	FileTaxonomy expected = {
 		.errors = {
-		    instruction_does_not_accept_block()
+		    instruction_does_not_accept_block(2)
 		}
 	};
 
@@ -672,7 +672,7 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 		"print 'Hello'",
 		"if true",
 		"   print 'World'",
-		"	if say_goodbye",
+		"   if say_goodbye",
 		"       print 'Bye'",
 		""
 	};
@@ -1020,7 +1020,7 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 											parse(5, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 											parse(6, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 										},
-										branches: {}
+										.branches = {}
 									},
 									{
 										.name =     "print",

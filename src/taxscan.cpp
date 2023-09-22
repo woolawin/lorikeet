@@ -63,6 +63,7 @@ TaxStrat custom_strat(BlockFunction block_func) {
 struct BlockResult {
     std::vector<Line> lines;
     size_t resume_at;
+    std::vector<CompilationError> errors;
 };
 
 struct BranchResult {
@@ -107,14 +108,18 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
             continue;
         }
         if (indentation_diff == IndentationDiff::Error) {
-            continue; // handle error
+            std::cout << line.raw() << std::endl;
+            return { invalid_indentation(idx + 1) };
         }
 
         TaxStrat tax_strat = agent.tax_strat(line.first_word());
         if (tax_strat.block_function == BlockFunction::NA) {
-            return { instruction_does_not_accept_block() };
+            return { instruction_does_not_accept_block(idx + 2) };
         }
         BlockResult result = scan_block(lines, idx + 1, indentation);
+        if (!result.errors.empty()) {
+            return result.errors;
+        }
         idx = result.resume_at;
 
         if (tax_strat.block_function == BlockFunction::Append) {
@@ -161,6 +166,9 @@ BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat
         }
 
         BlockResult result = scan_block(lines, idx + 2, indentation);
+        if (!result.errors.empty()) {
+            return { .resume_at = lines.size(), .errors = result.errors };
+        }
         idx = result.resume_at;
         if (result.lines.empty()) {
             continue;
@@ -186,7 +194,7 @@ BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, con
         }
         const IndentationDiff diff = indentation.diff(line.starting_whitespace());
         if (diff == IndentationDiff::Error) {
-            return { .lines = block, .resume_at = idx - 1 }; // @TODO handle error
+            return { .lines = block, .resume_at = idx - 1, .errors = { invalid_indentation(idx + 1) } };
         }
         if (diff == IndentationDiff::Increase) {
             block.push_back(line);
