@@ -20,7 +20,7 @@ cc_library(
 
 cc_library(
     name = "lk-taxscan",
-    srcs = ["taxscan.cpp", "taxscan_types.cpp", "agent.cpp"],
+    srcs = ["taxscan.cpp", "taxscan_types.cpp", "state_machine.cpp"],
     hdrs = ["taxscan.h"],
     deps = [":lk-line", ":lk-errors", "lk-ports"],
 )

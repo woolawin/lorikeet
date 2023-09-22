@@ -1,6 +1,6 @@
 #include "taxscan.h"
 
-void DefaultAgent::init(const std::string& cwd) {
+void DefaultStateMachine::init(const std::string& cwd) {
     const std::string path = this->env.var("PATH");
     for (File file : this->disk.ls(cwd)) {
         if (file.can_execute) {
@@ -9,7 +9,7 @@ void DefaultAgent::init(const std::string& cwd) {
     }
 }
 
-TaxStrat DefaultAgent::tax_strat(const std::string& instr_name) {
+TaxStrat DefaultStateMachine::tax_strat(const std::string& instr_name) {
     return value_strat();
 }
 

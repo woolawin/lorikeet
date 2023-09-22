@@ -74,7 +74,7 @@ TaxStrat command_strat();
 TaxStrat branch_strat(std::vector<std::string> branch_instr);
 TaxStrat custom_strat(BlockFunction block_func);
 
-class Agent {
+class StateMachine {
     public:
     virtual TaxStrat tax_strat(const std::string& instr_name) = 0;
 };
@@ -84,21 +84,21 @@ struct CommandInstr {
     std::string path;
 };
 
-class DefaultAgent: public Agent {
+class DefaultStateMachine: public StateMachine {
     private:
     Env& env;
     Disk& disk;
     std::vector<CommandInstr> command_instrs;
 
     public:
-    DefaultAgent(Env& env, Disk& disk) : env(env), disk(disk), command_instrs({}) {
+    DefaultStateMachine(Env& env, Disk& disk) : env(env), disk(disk), command_instrs({}) {
     }
 
     void init(const std::string& cwd);
     TaxStrat tax_strat(const std::string& instr_name);
 };
 
-FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent);
+FileTaxonomy scan_file(const std::vector<std:: string>& lines, StateMachine& machine);
 FileTaxonomy empty_file_taxonomy();
 
 #endif

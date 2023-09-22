@@ -4,7 +4,7 @@
 #include <optional>
 #include "taxscan.h"
 
-class TestAgent: public Agent {
+class TestStateMachine: public StateMachine {
     public:
     TaxStrat tax_strat(const std::string& name) {
         if (name == "noop") {
@@ -23,14 +23,14 @@ class TestAgent: public Agent {
     }
 };
 
-TestAgent agent = TestAgent();
+TestStateMachine machine = TestStateMachine();
 
 TEST(TaxScan, SingleInstruction) {
 	std::vector<std::string> lines = {
 		"stdout 'Hello'",
 	};
 
-	FileTaxonomy actual  = scan_file(lines, agent);
+	FileTaxonomy actual  = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -54,7 +54,7 @@ TEST(TaxScan, InstructionWithNABlockFunctionCanNotHaveBlock) {
 		"   stdout 'Hello'"
 	};
 
-	FileTaxonomy actual  = scan_file(lines, agent);
+	FileTaxonomy actual  = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.errors = {
@@ -71,7 +71,7 @@ TEST(TaxScan, SingleInstructionWithDirectQuotes) {
 		"`stdout` 'Hello'",
 	};
 
-	FileTaxonomy actual  = scan_file(lines, agent);
+	FileTaxonomy actual  = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -97,7 +97,7 @@ TEST(TaxScan, ScanLinesOneByOne) {
 		"exit",
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -140,7 +140,7 @@ TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 		"end"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -177,7 +177,7 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 		"print 'done'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -221,7 +221,7 @@ TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
 		"print 'done'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -264,7 +264,7 @@ TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 		"print 'done'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -307,7 +307,7 @@ TEST(TaxScan, ScanIgnoresComments) {
 		"print 'G'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -344,7 +344,7 @@ TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 		"print 'done'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -380,7 +380,7 @@ TEST(TaxScan, ScanWithSubroutine) {
 		""
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -426,7 +426,7 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 		"   print 'Bye'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -485,7 +485,7 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 		"   print 'Bye'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -546,7 +546,7 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 		"   print 'Cheerio'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -617,7 +617,7 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 		"   print 'Cheerio'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -677,7 +677,7 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 		""
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = RoutineTaxonomy{
@@ -744,7 +744,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 		"print 'exit'"
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -837,7 +837,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 		"print 'M'",
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {
@@ -994,7 +994,7 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 		""
 	};
 
-	FileTaxonomy actual = scan_file(lines, agent);
+	FileTaxonomy actual = scan_file(lines, machine);
 
 	FileTaxonomy expected = {
 		.routine = {

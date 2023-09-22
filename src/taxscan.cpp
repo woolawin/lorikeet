@@ -75,23 +75,23 @@ void trim_lines(std::vector<Line>& lines);
 
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
-std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent);
-BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, InstructionTaxonomy& instr, Agent& agent);
+std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, StateMachine& machine);
+BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, InstructionTaxonomy& instr, StateMachine& machine);
 
-FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, Agent& agent) {
+FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, StateMachine& machine) {
     FileTaxonomy file = empty_file_taxonomy();
 
     Indentation indentation;
     std::vector<Line> lines;
     parse(lines_raw, lines);
-    std::vector<CompilationError> errors = scan_routine(lines, indentation, file.routine, agent);
+    std::vector<CompilationError> errors = scan_routine(lines, indentation, file.routine, machine);
     if (!errors.empty()) {
         return err_file(errors);
     }
     return file;
 }
 
-std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, Agent& agent) {
+std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, StateMachine& machine) {
     bool is_multi_line_comment = false;
     for (size_t idx = 0; idx < lines.size(); idx++) {
         const Line line = lines[idx];
@@ -112,7 +112,7 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
             return { invalid_indentation(idx + 1) };
         }
 
-        TaxStrat tax_strat = agent.tax_strat(line.first_word());
+        TaxStrat tax_strat = machine.tax_strat(line.first_word());
         if (tax_strat.block_function == BlockFunction::NA) {
             return { instruction_does_not_accept_block(idx + 2) };
         }
@@ -135,11 +135,11 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
         // We must be in routine
         BranchTaxonomy& branch = instr.branch(true, parse(0, ""));
         Indentation new_indentation = indentation.indent(starting_whitespace);
-        std::vector<CompilationError> errors = scan_routine(result.lines, new_indentation, branch.routine, agent);
+        std::vector<CompilationError> errors = scan_routine(result.lines, new_indentation, branch.routine, machine);
         if (!errors.empty()) {
             return errors;
         }
-        BranchResult branch_result = scan_branches(lines, idx, tax_strat, indentation, instr, agent);
+        BranchResult branch_result = scan_branches(lines, idx, tax_strat, indentation, instr, machine);
         if (!branch_result.errors.empty()) {
             return branch_result.errors;
         }
@@ -148,7 +148,7 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
     return {};
 }
 
-BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, InstructionTaxonomy& instr, Agent& agent) {
+BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, InstructionTaxonomy& instr, StateMachine& machine) {
     bool is_multi_line_comment = false;
     for (size_t idx = from; idx < lines.size() - 1; idx++) {
         Line next_line = lines[idx + 1];
@@ -176,7 +176,7 @@ BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat
 
         BranchTaxonomy& branch = instr.branch(false, next_line.crop_from_first_word());
         Indentation new_indentation = indentation.indent(result.lines[0].starting_whitespace());
-        std::vector<CompilationError> errors = scan_routine(result.lines, new_indentation, branch.routine, agent);
+        std::vector<CompilationError> errors = scan_routine(result.lines, new_indentation, branch.routine, machine);
         if (!errors.empty()) {
             return { .resume_at = lines.size(), .errors = errors };
         }
