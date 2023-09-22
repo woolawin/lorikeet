@@ -47,6 +47,6 @@ cc_binary(
 
 cc_test(
     name = "test",
-    srcs = ["test.cpp", "line_test.cpp", "taxscan_test.cpp"],
+    srcs = ["test.cpp", "line_test.cpp", "taxscan_test.cpp", "state_machine_test.cpp"],
     deps = ["lk-line", "lk-taxscan", "@googletest//:gtest_main"],
 )
