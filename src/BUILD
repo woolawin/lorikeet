@@ -12,10 +12,17 @@ cc_library(
 )
 
 cc_library(
+    name = "lk-ports",
+    srcs = ["ports.cpp"],
+    hdrs = ["ports.h"],
+)
+
+
+cc_library(
     name = "lk-taxscan",
-    srcs = ["taxscan.cpp", "taxscan_types.cpp"],
+    srcs = ["taxscan.cpp", "taxscan_types.cpp", "agent.cpp"],
     hdrs = ["taxscan.h"],
-    deps = [":lk-line", ":lk-errors"],
+    deps = [":lk-line", ":lk-errors", "lk-ports"],
 )
 
 cc_binary(

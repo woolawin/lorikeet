@@ -9,6 +9,7 @@
 
 #include "line.h"
 #include "errors.h"
+#include "ports.h"
 
 struct BranchTaxonomy;
 
@@ -76,6 +77,25 @@ TaxStrat custom_strat(BlockFunction block_func);
 class Agent {
     public:
     virtual TaxStrat tax_strat(const std::string& instr_name) = 0;
+};
+
+struct CommandInstr {
+    std::string name;
+    std::string path;
+};
+
+class DefaultAgent: public Agent {
+    private:
+    Env& env;
+    Disk& disk;
+    std::vector<CommandInstr> command_instrs;
+
+    public:
+    DefaultAgent(Env& env, Disk& disk) : env(env), disk(disk), command_instrs({}) {
+    }
+
+    void init(const std::string& cwd);
+    TaxStrat tax_strat(const std::string& instr_name);
 };
 
 FileTaxonomy scan_file(const std::vector<std:: string>& lines, Agent& agent);
