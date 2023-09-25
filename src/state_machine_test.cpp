@@ -49,18 +49,21 @@ class TestEnv: public Env {
 
 TestDisk disk = TestDisk();
 TestEnv env = TestEnv();
+IDGenerator id_gen = IDGenerator();
 
 TEST(Line, LoadCommandsInPath) {
 
-    RootStateMachine machine = RootStateMachine(env, disk);
+    RootStateMachine machine = RootStateMachine(env, disk, id_gen);
 
     machine.init();
 
-    CommandInstr instr = { .name = "echo", .path="/usr/bin/echo" };
-    EXPECT_EQ(machine.get_cmd_instr("echo"), std::make_optional(instr));
+    CommandInstr instr = machine.get_cmd_instr("echo").value();
+    EXPECT_EQ(instr.name, "echo");
+    EXPECT_EQ(instr.path, "/usr/bin/echo");
 
-    instr = { .name = "make", .path="/usr/local/bin/make" };
-    EXPECT_EQ(machine.get_cmd_instr("make"), std::make_optional(instr));
+    instr = machine.get_cmd_instr("make").value();
+    EXPECT_EQ(instr.name, "make");
+    EXPECT_EQ(instr.path, "/usr/local/bin/make");
 
     EXPECT_EQ(machine.get_cmd_instr("non_existant"), std::nullopt);
     EXPECT_EQ(machine.get_cmd_instr("textdata"), std::nullopt);

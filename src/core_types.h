@@ -3,6 +3,9 @@
 
 #include <string>
 #include <vector>
+#include <random>
+
+typedef uint32_t InstructionID;
 
 enum class ParseStrat {
     Value,
@@ -28,5 +31,15 @@ TaxStrat command_strat();
 TaxStrat branch_strat(std::vector<std::string> branch_instr);
 TaxStrat custom_strat(BlockFunction block_func);
 
+class IDGenerator {
+    private:
+    std::mt19937 rng;
+    std::uniform_int_distribution<uint32_t> distribution;
+
+    public:
+    IDGenerator(): rng(std::random_device{}()), distribution(std::uniform_int_distribution<uint32_t>(0, UINT32_MAX)) {}
+
+    InstructionID new_instr_id();
+};
 
 #endif

@@ -15,3 +15,7 @@ TaxStrat branch_strat(std::vector<std::string> branch_instr) {
 TaxStrat custom_strat(BlockFunction block_func) {
     return { .parse_strat = ParseStrat::Custom, .block_function = block_func };
 }
+
+InstructionID IDGenerator::new_instr_id() {
+    return this->distribution(this->rng);
+}
