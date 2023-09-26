@@ -47,9 +47,20 @@ class TestEnv: public Env {
      }
 };
 
+class SequentialIDGenerator: public IDGenerator {
+    private:
+    size_t index = 0;
+
+    public:
+    InstructionID new_instr_id() {
+        this->index++;
+        return this->index;
+    }
+};
+
 TestDisk disk = TestDisk();
 TestEnv env = TestEnv();
-IDGenerator id_gen = IDGenerator();
+SequentialIDGenerator id_gen = SequentialIDGenerator();
 
 TEST(Line, LoadCommandsInPath) {
 
@@ -57,13 +68,11 @@ TEST(Line, LoadCommandsInPath) {
 
     machine.init();
 
-    CommandInstr instr = machine.get_cmd_instr("echo").value();
-    EXPECT_EQ(instr.name, "echo");
-    EXPECT_EQ(instr.path, "/usr/bin/echo");
+    CommandInstr instr = { .id = 1, .name = "echo", .path = "/usr/bin/echo" };
+    EXPECT_EQ(machine.get_cmd_instr("echo").value(), instr);
 
-    instr = machine.get_cmd_instr("make").value();
-    EXPECT_EQ(instr.name, "make");
-    EXPECT_EQ(instr.path, "/usr/local/bin/make");
+    instr = { .id = 3, .name = "make", .path = "/usr/local/bin/make" };
+    EXPECT_EQ(machine.get_cmd_instr("make").value(), instr);
 
     EXPECT_EQ(machine.get_cmd_instr("non_existant"), std::nullopt);
     EXPECT_EQ(machine.get_cmd_instr("textdata"), std::nullopt);

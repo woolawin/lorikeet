@@ -9,6 +9,11 @@ bool CommandInstr::operator==(const CommandInstr& other) const {
         && this->id == other.id;
 }
 
+std::ostream& operator<<(std::ostream& os, const CommandInstr& instr) {
+    os << "{ id=" << instr.id << ", name=\"" << instr.name << "\", path=\"" << instr.path << "\" }" << std::endl;
+    return os;
+}
+
 std::vector<std::string> split_paths(std::string path);
 
 

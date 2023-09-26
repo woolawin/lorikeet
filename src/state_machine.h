@@ -1,6 +1,7 @@
 #ifndef LK_STATE_MACHINE
 #define LK_STATE_MACHINE
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <optional>
@@ -19,6 +20,7 @@ struct CommandInstr {
     std::string path;
 
     bool operator==(const CommandInstr& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const CommandInstr& instr);
 };
 
 class RootStateMachine: public StateMachine {
