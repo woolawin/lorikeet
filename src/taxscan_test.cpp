@@ -34,7 +34,7 @@ TEST(TaxScan, SingleInstruction) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "stdout",
 					.input =    {parse(1, " 'Hello'")},
@@ -75,7 +75,7 @@ TEST(TaxScan, SingleInstructionWithDirectQuotes) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "stdout",
 					.input =    {parse(1, " 'Hello'")},
@@ -101,7 +101,7 @@ TEST(TaxScan, ScanLinesOneByOne) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "stdout",
 					.input =    {parse(1, " 'Hello'")},
@@ -144,7 +144,7 @@ TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -181,7 +181,7 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -225,7 +225,7 @@ TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -268,7 +268,7 @@ TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'start'")},
@@ -311,7 +311,7 @@ TEST(TaxScan, ScanIgnoresComments) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'A'")},
@@ -348,7 +348,7 @@ TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name = "curl",
 					.input = {
@@ -384,7 +384,7 @@ TEST(TaxScan, ScanWithSubroutine) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -398,7 +398,7 @@ TEST(TaxScan, ScanWithSubroutine) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
@@ -430,7 +430,7 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -444,7 +444,7 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
@@ -457,7 +457,7 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 							.default_branch = false,
 							.input =         parse(4, " if false"),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =     {parse(5, " 'Bye'")},
@@ -489,7 +489,7 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -503,7 +503,7 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
@@ -516,7 +516,7 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 							.default_branch = false,
 							.input =         parse(4, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =     {parse(5, " 'Bye'")},
@@ -550,7 +550,7 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -564,7 +564,7 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
@@ -582,7 +582,7 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 							.default_branch = false,
 							.input =         parse(5, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =     {parse(6, " 'Bye'")},
@@ -621,7 +621,7 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -635,7 +635,7 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
@@ -648,7 +648,7 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 							.default_branch = false,
 							.input =         parse(5, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =     {parse(7, " 'Cheerio'")},
@@ -681,7 +681,7 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 
 	FileTaxonomy expected = {
 		.routine = RoutineTaxonomy{
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -695,7 +695,7 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
@@ -709,7 +709,7 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 												.default_branch = true,
 												.input =         parse(0, ""),
 												.routine = {
-													.instructions = {
+													.statements = {
 														{
 															.name =     "print",
 															.input =    {parse(5, " 'Bye'")},
@@ -748,7 +748,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
@@ -762,7 +762,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
@@ -776,7 +776,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 												.default_branch = true,
 												.input =         parse(0, ""),
 												.routine = {
-													.instructions = {
+													.statements = {
 														{
 															.name =     "print",
 															.input =    {parse(5, " 'Bye'")},
@@ -841,7 +841,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'A'")},
@@ -855,7 +855,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'B'")},
@@ -869,7 +869,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 												.default_branch = true,
 												.input =         parse(0, ""),
 												.routine = {
-													.instructions = {
+													.statements = {
 														{
 															.name =     "print",
 															.input =    {parse(5, " 'C'")},
@@ -888,7 +888,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 																	.default_branch = true,
 																	.input =         parse(0, ""),
 																	.routine = {
-																		.instructions = {
+																		.statements = {
 																			{
 																				.name =     "print",
 																				.input =    {parse(8, " 'D-1'")},
@@ -932,7 +932,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 												.default_branch = true,
 												.input =         parse(0, ""),
 												.routine = {
-													.instructions = {
+													.statements = {
 														{
 															.name =     "print",
 															.input =    {parse(16, " 'H'")},
@@ -998,7 +998,7 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 
 	FileTaxonomy expected = {
 		.routine = {
-			.instructions = {
+			.statements = {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'start'")},
@@ -1012,7 +1012,7 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 							.default_branch = true,
 							.input =         parse(0, ""),
 							.routine = {
-								.instructions = {
+								.statements = {
 									{
 										.name = "hexdump",
 										.input = {

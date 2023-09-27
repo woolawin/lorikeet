@@ -26,16 +26,16 @@ BranchTaxonomy new_branch(bool is_default, const Line& input) {
     return {
 	    .default_branch = is_default,
 	    .input = input,
-		.routine = { .instructions = {} }
+		.routine = { .statements = {} }
 	};
 }
 
-BranchTaxonomy& InstructionTaxonomy::branch(bool is_default, const Line& line) {
+BranchTaxonomy& StatementTaxonomy::branch(bool is_default, const Line& line) {
     this->branches.push_back(new_branch(is_default, line));
     return this->branches.back();
 }
 
-InstructionTaxonomy new_instruction(const Line& line) {
+StatementTaxonomy new_statement(const Line& line) {
 	return {
 		.name = line.first_word(),
 		.input =  {line.crop_from_first_word()},
@@ -43,9 +43,9 @@ InstructionTaxonomy new_instruction(const Line& line) {
 	};
 }
 
-InstructionTaxonomy& RoutineTaxonomy::append(const Line& line) {
-    this->instructions.push_back(new_instruction(line));
-    return this->instructions.back();
+StatementTaxonomy& RoutineTaxonomy::append(const Line& line) {
+    this->statements.push_back(new_statement(line));
+    return this->statements.back();
 }
 
 std::string repeat(const std::string value, int count) {
@@ -60,7 +60,7 @@ std::string indent(int count) {
     return repeat(" ", count * 2);
 }
 
-void to_stream(std::ostream& os, const InstructionTaxonomy& instr, int indentation);
+void to_stream(std::ostream& os, const StatementTaxonomy& instr, int indentation);
 void to_stream(std::ostream& os, const BranchTaxonomy& branch, int indentation);
 
 std::string to_string(bool boolean) {
@@ -68,7 +68,7 @@ std::string to_string(bool boolean) {
 }
 
 bool RoutineTaxonomy::operator==(const RoutineTaxonomy& other) const {
-    return this->instructions == other.instructions;
+    return this->statements == other.statements;
 }
 
 std::ostream& operator<<(std::ostream& os, const RoutineTaxonomy& routine) {
@@ -78,9 +78,9 @@ std::ostream& operator<<(std::ostream& os, const RoutineTaxonomy& routine) {
 
 void to_stream(std::ostream& os, const RoutineTaxonomy& routine, int indentation) {
     os << "{" << std::endl;
-    os << indent(indentation + 1) << "instructions=[" << std::endl;
-    for (size_t idx = 0; idx < routine.instructions.size(); idx++) {
-        to_stream(os, routine.instructions[idx], indentation + 2);
+    os << indent(indentation + 1) << "statements=[" << std::endl;
+    for (size_t idx = 0; idx < routine.statements.size(); idx++) {
+        to_stream(os, routine.statements[idx], indentation + 2);
     }
     os << indent(indentation + 1) << "]" << std::endl;
     os << indent(indentation) << "}" << std::endl;
@@ -106,18 +106,18 @@ void to_stream(std::ostream& os, const BranchTaxonomy& branch, int indentation) 
     os << indent(indentation) << "}" << std::endl;
 }
 
-bool InstructionTaxonomy::operator==(const InstructionTaxonomy& other) const {
+bool StatementTaxonomy::operator==(const StatementTaxonomy& other) const {
     return this->name == other.name
         && this->input == other.input
         && this->branches == other.branches;
 }
 
-std::ostream& operator<<(std::ostream& os, const InstructionTaxonomy& instr) {
+std::ostream& operator<<(std::ostream& os, const StatementTaxonomy& instr) {
     to_stream(os, instr, 0);
     return os;
 }
 
-void to_stream(std::ostream& os, const InstructionTaxonomy& instr, int indentation) {
+void to_stream(std::ostream& os, const StatementTaxonomy& instr, int indentation) {
     os << indent(indentation) << "{" << std::endl;
     os << indent(indentation + 1) << "name=\"" << instr.name << "\"" << std::endl;
     os << indent(indentation + 1) << "input=[" << std::endl;

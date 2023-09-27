@@ -35,24 +35,24 @@ TaxStrat custom_strat(BlockFunction block_func);
 
 struct BranchTaxonomy;
 
-struct InstructionTaxonomy {
+struct StatementTaxonomy {
     std::string name;
     std::vector<Line> input;
     std::vector<BranchTaxonomy> branches;
 
-    bool operator==(const InstructionTaxonomy& other) const;
-    friend std::ostream& operator<<(std::ostream& os, const InstructionTaxonomy& line);
+    bool operator==(const StatementTaxonomy& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const StatementTaxonomy& line);
 
     BranchTaxonomy& branch(bool is_default, const Line& line);
 };
 
 struct RoutineTaxonomy {
-    std::vector<InstructionTaxonomy> instructions;
+    std::vector<StatementTaxonomy> statements;
 
     bool operator==(const RoutineTaxonomy& other) const;
     friend std::ostream& operator<<(std::ostream& os, const RoutineTaxonomy& line);
 
-    InstructionTaxonomy& append(const Line& line);
+    StatementTaxonomy& append(const Line& line);
 };
 
 struct BranchTaxonomy {

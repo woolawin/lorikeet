@@ -2,16 +2,16 @@
 #include "taxscan.h"
 
 FileTaxonomy empty_file_taxonomy() {
-	return { .routine = { .instructions = {} } };
+	return { .routine = { .statements = {} } };
 }
 
 FileTaxonomy err_file(std::vector<CompilationError> errors) {
-    return { .routine = { .instructions = {} }, .errors = errors };
+    return { .routine = { .statements = {} }, .errors = errors };
 }
 
-void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, int start, int count) {
+void append_input(StatementTaxonomy& stmt, const std::vector<Line>& lines, int start, int count) {
     for (int idx = start; idx < start + count; idx++) {
-        instr.input.push_back(lines[idx]);
+        stmt.input.push_back(lines[idx]);
 	}
 }
 
@@ -31,7 +31,7 @@ void trim_lines(std::vector<Line>& lines);
 bool skip_line(const Line& line, bool& is_multi_line_comment);
 BlockResult scan_block(const std::vector<Line>& lines, size_t starting_from, const Indentation& indentation);
 std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Indentation& indentation, RoutineTaxonomy& routine, StateMachine& machine);
-BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, InstructionTaxonomy& instr, StateMachine& machine);
+BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, StatementTaxonomy& stmt, StateMachine& machine);
 
 FileTaxonomy scan_file(const std::vector<std:: string>& lines_raw, StateMachine& machine) {
     FileTaxonomy file = empty_file_taxonomy();
@@ -53,7 +53,7 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
         if (skip_line(line, is_multi_line_comment)) {
             continue;
         }
-        InstructionTaxonomy& instr = routine.append(line);
+        StatementTaxonomy& stmt = routine.append(line);
         if (idx == lines.size() - 1) {
             continue;
         }
@@ -83,18 +83,18 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
             if (!first_input.empty()) {
                 result.lines.insert(result.lines.begin(), first_input);
             }
-            instr.input = result.lines;
+            stmt.input = result.lines;
             continue;
         }
 
         // We must be in routine
-        BranchTaxonomy& branch = instr.branch(true, parse(0, ""));
+        BranchTaxonomy& branch = stmt.branch(true, parse(0, ""));
         Indentation new_indentation = indentation.indent(starting_whitespace);
         std::vector<CompilationError> errors = scan_routine(result.lines, new_indentation, branch.routine, machine);
         if (!errors.empty()) {
             return errors;
         }
-        BranchResult branch_result = scan_branches(lines, idx, tax_strat, indentation, instr, machine);
+        BranchResult branch_result = scan_branches(lines, idx, tax_strat, indentation, stmt, machine);
         if (!branch_result.errors.empty()) {
             return branch_result.errors;
         }
@@ -103,20 +103,20 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
     return {};
 }
 
-BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, InstructionTaxonomy& instr, StateMachine& machine) {
+BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat tax_strat, Indentation& indentation, StatementTaxonomy& stmt, StateMachine& machine) {
     bool is_multi_line_comment = false;
     for (size_t idx = from; idx < lines.size() - 1; idx++) {
         Line next_line = lines[idx + 1];
         if (skip_line(next_line, is_multi_line_comment)) {
             continue;
         }
-        const bool next_instr_is_branch = std::find(
+        const bool next_stmt_is_branch = std::find(
             tax_strat.branch_instr.begin(),
             tax_strat.branch_instr.end(),
             next_line.first_word()
          ) != tax_strat.branch_instr.end();
 
-        if (!next_instr_is_branch) {
+        if (!next_stmt_is_branch) {
             return { .resume_at = idx, .errors = {} };
         }
 
@@ -129,7 +129,7 @@ BranchResult scan_branches(const std::vector<Line>& lines, size_t from, TaxStrat
             continue;
         }
 
-        BranchTaxonomy& branch = instr.branch(false, next_line.crop_from_first_word());
+        BranchTaxonomy& branch = stmt.branch(false, next_line.crop_from_first_word());
         Indentation new_indentation = indentation.indent(result.lines[0].starting_whitespace());
         std::vector<CompilationError> errors = scan_routine(result.lines, new_indentation, branch.routine, machine);
         if (!errors.empty()) {
