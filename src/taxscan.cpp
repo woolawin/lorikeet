@@ -1,6 +1,4 @@
 
-#include <optional>
-#include <algorithm>
 #include "taxscan.h"
 
 FileTaxonomy empty_file_taxonomy() {
@@ -9,32 +7,6 @@ FileTaxonomy empty_file_taxonomy() {
 
 FileTaxonomy err_file(std::vector<CompilationError> errors) {
     return { .routine = { .instructions = {} }, .errors = errors };
-}
-
-BranchTaxonomy new_branch(bool is_default, const Line& input) {
-    return {
-	    .default_branch = is_default,
-	    .input = input,
-		.routine = { .instructions = {} }
-	};
-}
-
-InstructionTaxonomy new_instruction(const Line& line) {
-	return {
-		.name = line.first_word(),
-		.input =  {line.crop_from_first_word()},
-		.branches = {},
-	};
-}
-
-BranchTaxonomy& InstructionTaxonomy::branch(bool is_default, const Line& line) {
-    this->branches.push_back(new_branch(is_default, line));
-    return this->branches.back();
-}
-
-InstructionTaxonomy& RoutineTaxonomy::append(const Line& line) {
-    this->instructions.push_back(new_instruction(line));
-    return this->instructions.back();
 }
 
 void append_input(InstructionTaxonomy& instr, const std::vector<Line>& lines, int start, int count) {

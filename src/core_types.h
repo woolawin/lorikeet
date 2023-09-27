@@ -1,9 +1,11 @@
 #ifndef LK_CORE_TYPES
 #define LK_CORE_TYPES
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <random>
+#include "line.h"
 
 typedef uint32_t InstructionID;
 
@@ -31,6 +33,37 @@ TaxStrat command_strat();
 TaxStrat branch_strat(std::vector<std::string> branch_instr);
 TaxStrat custom_strat(BlockFunction block_func);
 
+struct BranchTaxonomy;
+
+struct InstructionTaxonomy {
+    std::string name;
+    std::vector<Line> input;
+    std::vector<BranchTaxonomy> branches;
+
+    bool operator==(const InstructionTaxonomy& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const InstructionTaxonomy& line);
+
+    BranchTaxonomy& branch(bool is_default, const Line& line);
+};
+
+struct RoutineTaxonomy {
+    std::vector<InstructionTaxonomy> instructions;
+
+    bool operator==(const RoutineTaxonomy& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const RoutineTaxonomy& line);
+
+    InstructionTaxonomy& append(const Line& line);
+};
+
+struct BranchTaxonomy {
+    bool default_branch;
+    Line input;
+    RoutineTaxonomy routine;
+
+    bool operator==(const BranchTaxonomy& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const BranchTaxonomy& line);
+};
+
 class IDGenerator {
     public:
     virtual InstructionID new_instr_id() = 0;
@@ -48,5 +81,8 @@ class RandomIDGenerator: public IDGenerator {
 
     InstructionID new_instr_id();
 };
+
+std::string indent(int count);
+void to_stream(std::ostream& os, const RoutineTaxonomy& routine, int indentation);
 
 #endif

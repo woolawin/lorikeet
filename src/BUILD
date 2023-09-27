@@ -1,14 +1,17 @@
 
-cc_library(
-    name = "lk-core-types",
-    srcs = ["core_types.cpp"],
-    hdrs = ["core_types.h"],
-)
+
 
 cc_library(
     name = "lk-line",
     srcs = ["line.cpp",],
     hdrs = ["line.h"],
+)
+
+cc_library(
+    name = "lk-core-types",
+    srcs = ["core_types.cpp"],
+    hdrs = ["core_types.h"],
+    deps = [":lk-line"],
 )
 
 cc_library(
