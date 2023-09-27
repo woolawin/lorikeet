@@ -47,17 +47,6 @@ class TestEnv: public Env {
      }
 };
 
-class SequentialIDGenerator: public IDGenerator {
-    private:
-    size_t index = 0;
-
-    public:
-    InstructionID new_instr_id() {
-        this->index++;
-        return this->index;
-    }
-};
-
 TestDisk disk = TestDisk();
 TestEnv env = TestEnv();
 SequentialIDGenerator id_gen = SequentialIDGenerator();

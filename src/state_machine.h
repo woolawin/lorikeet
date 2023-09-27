@@ -46,5 +46,15 @@ class RootStateMachine: public StateMachine {
     TaxStrat tax_strat(const std::string& instr_name);
 };
 
+class SequentialIDGenerator: public IDGenerator {
+    private:
+    size_t index = 0;
+
+    public:
+    InstructionID new_instr_id() {
+        this->index++;
+        return this->index;
+    }
+};
 
 #endif
