@@ -47,20 +47,19 @@ class TestStateMachine: public StateMachine {
         return std::nullopt;
     }
 
-    TaxStrat tax_strat(const std::string& name) {
-        if (name == "noop") {
+    TaxStrat tax_strat(InstructionID instr) {
+        switch (instr) {
+        case INSTR_ID_NOOP:
             return value_strat();
-        }
-        if (name == "if") {
+        case INSTR_ID_IF:
             return branch_strat({"else"});
-        }
-        if (name == "curl") {
+        case INSTR_ID_CURL:
+            return command_strat();
+        case INSTR_ID_HEXDUMP:
+            return custom_strat(BlockFunction::Append);
+        default:
             return command_strat();
         }
-        if (name == "hexdump") {
-            return custom_strat(BlockFunction::Append);
-        }
-        return command_strat();
     }
 };
 

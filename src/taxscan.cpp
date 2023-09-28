@@ -58,7 +58,7 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
             return { unknown_instruction(idx) };
         }
         StatementTaxonomy& stmt = routine.append(instr_id.value(), line);
-        TaxStrat tax_strat = machine.tax_strat(line.first_word());
+        TaxStrat tax_strat = machine.tax_strat(instr_id.value());
 
         if (idx == lines.size() - 1) {
             continue;

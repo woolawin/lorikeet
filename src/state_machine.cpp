@@ -42,9 +42,9 @@ void RootStateMachine::load_cmd_instrs(const std::string& path) {
     }
 }
 
-TaxStrat RootStateMachine::tax_strat(const std::string& instr_name) {
-    for (const CommandInstr& instr : this->command_instrs) {
-        if (instr.name == instr_name) {
+TaxStrat RootStateMachine::tax_strat(InstructionID instr) {
+    for (const CommandInstr& cmd_instr : this->command_instrs) {
+        if (cmd_instr.id == instr) {
             return command_strat();
         }
     }

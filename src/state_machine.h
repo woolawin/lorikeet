@@ -12,7 +12,7 @@
 class StateMachine {
     public:
     virtual std::optional<InstructionID> find_instr(const std::string& name) = 0;
-    virtual TaxStrat tax_strat(const std::string& instr_name) = 0;
+    virtual TaxStrat tax_strat(InstructionID instr) = 0;
 };
 
 struct CommandInstr {
@@ -45,7 +45,7 @@ class RootStateMachine: public StateMachine {
 
     void init();
     std::optional<InstructionID> find_instr(const std::string& name);
-    TaxStrat tax_strat(const std::string& instr_name);
+    TaxStrat tax_strat(InstructionID instr);
 };
 
 class SequentialIDGenerator: public IDGenerator {
