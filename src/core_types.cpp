@@ -35,16 +35,17 @@ BranchTaxonomy& StatementTaxonomy::branch(bool is_default, const Line& line) {
     return this->branches.back();
 }
 
-StatementTaxonomy new_statement(const Line& line) {
+StatementTaxonomy new_statement(InstructionID instr_id, const Line& line) {
 	return {
 		.name = line.first_word(),
 		.input =  {line.crop_from_first_word()},
+		.instr_id = instr_id,
 		.branches = {},
 	};
 }
 
-StatementTaxonomy& RoutineTaxonomy::append(const Line& line) {
-    this->statements.push_back(new_statement(line));
+StatementTaxonomy& RoutineTaxonomy::append(InstructionID instr_id, const Line& line) {
+    this->statements.push_back(new_statement(instr_id, line));
     return this->statements.back();
 }
 
@@ -109,6 +110,7 @@ void to_stream(std::ostream& os, const BranchTaxonomy& branch, int indentation) 
 bool StatementTaxonomy::operator==(const StatementTaxonomy& other) const {
     return this->name == other.name
         && this->input == other.input
+        && this->instr_id == other.instr_id
         && this->branches == other.branches;
 }
 
@@ -117,17 +119,18 @@ std::ostream& operator<<(std::ostream& os, const StatementTaxonomy& instr) {
     return os;
 }
 
-void to_stream(std::ostream& os, const StatementTaxonomy& instr, int indentation) {
+void to_stream(std::ostream& os, const StatementTaxonomy& stmt, int indentation) {
     os << indent(indentation) << "{" << std::endl;
-    os << indent(indentation + 1) << "name=\"" << instr.name << "\"" << std::endl;
+    os << indent(indentation + 1) << "name=\"" << stmt.name << "\"" << std::endl;
     os << indent(indentation + 1) << "input=[" << std::endl;
-    for (size_t idx = 0; idx < instr.input.size(); idx++) {
-         os << indent(indentation + 2) << "\"" << instr.input[idx].raw() << "\"" << std::endl;
+    for (size_t idx = 0; idx < stmt.input.size(); idx++) {
+         os << indent(indentation + 2) << "\"" << stmt.input[idx].raw() << "\"" << std::endl;
     }
     os << indent(indentation + 1) << "]" << std::endl;
+    os << indent(indentation + 1) << "instr_id=" << stmt.instr_id << std::endl;
     os << indent(indentation + 1) << "branches=[" << std::endl;
-    for (size_t idx = 0; idx < instr.branches.size(); idx++) {
-        to_stream(os, instr.branches[idx], indentation + 2);
+    for (size_t idx = 0; idx < stmt.branches.size(); idx++) {
+        to_stream(os, stmt.branches[idx], indentation + 2);
     }
     os << indent(indentation + 1) << "]" << std::endl;
     os << indent(indentation) << "}" << std::endl;

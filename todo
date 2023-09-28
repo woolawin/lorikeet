@@ -1,0 +1,7 @@
+update parse_strat to add a flag if a branch is required!
+replace usage of print with stdout in tests
+rename tax_strat to parse_strat
+rename taxscan to compile
+add enable_default_branch in parse_strat
+
+implement conclusion instruction, an instruction that always must be the last instruction of a routine

@@ -4,8 +4,49 @@
 #include <optional>
 #include "taxscan.h"
 
+const InstructionID INSTR_ID_NOOP     = 1;
+const InstructionID INSTR_ID_IF       = 2;
+const InstructionID INSTR_ID_CURL     = 3;
+const InstructionID INSTR_ID_HEXDUMP  = 4;
+const InstructionID INSTR_ID_VAR      = 5;
+const InstructionID INSTR_ID_STDOUT   = 6;
+const InstructionID INSTR_ID_DEBUG    = 7;
+const InstructionID INSTR_ID_EXIT     = 8;
+const InstructionID INSTR_ID_PRINT    = 9;
+
 class TestStateMachine: public StateMachine {
     public:
+    std::optional<InstructionID> find_instr(const std::string& name) {
+        if (name == "noop") {
+            return INSTR_ID_NOOP;
+        }
+        if (name == "if") {
+            return INSTR_ID_IF;
+        }
+        if (name == "curl") {
+            return INSTR_ID_CURL;
+        }
+        if (name == "hexdump") {
+            return INSTR_ID_HEXDUMP;
+        }
+        if (name == "var") {
+            return INSTR_ID_VAR;
+        }
+        if (name == "stdout") {
+            return INSTR_ID_STDOUT;
+        }
+        if (name == "debug") {
+            return INSTR_ID_DEBUG;
+        }
+        if (name == "exit") {
+            return INSTR_ID_EXIT;
+        }
+        if (name == "print") {
+            return INSTR_ID_PRINT;
+        }
+        return std::nullopt;
+    }
+
     TaxStrat tax_strat(const std::string& name) {
         if (name == "noop") {
             return value_strat();
@@ -38,6 +79,7 @@ TEST(TaxScan, SingleInstruction) {
 				{
 					.name =     "stdout",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_STDOUT,
 					.branches = {}
 				}
 			}
@@ -79,6 +121,7 @@ TEST(TaxScan, SingleInstructionWithDirectQuotes) {
 				{
 					.name =     "stdout",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_STDOUT,
 					.branches = {}
 				}
 			}
@@ -105,21 +148,25 @@ TEST(TaxScan, ScanLinesOneByOne) {
 				{
 					.name =     "stdout",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_STDOUT,
 					.branches = {}
 				},
 				{
 					.name =     "var",
 					.input =    {parse(2, " name := 'bob'")},
+					.instr_id = INSTR_ID_VAR,
 					.branches = {}
 				},
 				{
 					.name =     "debug",
 					.input =    {parse(3, "()")},
+					.instr_id = INSTR_ID_DEBUG,
 					.branches = {}
 				},
 				{
 					.name =     "exit",
 					.input =    {parse(4, "")},
+					.instr_id = INSTR_ID_EXIT,
 					.branches = {}
 				}
 			}
@@ -148,6 +195,7 @@ TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
@@ -157,6 +205,7 @@ TEST(TaxScan, ScanWithInputBlockAndEndTerminator) {
 						parse(4, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 						parse(5, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
+					.instr_id = INSTR_ID_HEXDUMP,
 					.branches = {}
 				}
 			}
@@ -185,6 +234,7 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
@@ -194,11 +244,13 @@ TEST(TaxScan, ScanWithInputBlockWithoutEndTerminator) {
 						parse(4, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 						parse(5, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
+					.instr_id = INSTR_ID_HEXDUMP,
 					.branches = {}
 				},
 				{
 					.name =     "print",
 					.input =    {parse(6, " 'done'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 			}
@@ -229,6 +281,7 @@ TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
@@ -238,11 +291,13 @@ TEST(TaxScan, ScanWithInputBlockIgnoresComment) {
 						parse(5, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 						parse(7, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
+					.instr_id = INSTR_ID_HEXDUMP,
 					.branches = {}
 				},
 				{
 					.name =     "print",
 					.input =    {parse(8, " 'done'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 			}
@@ -272,6 +327,7 @@ TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'start'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
@@ -281,11 +337,13 @@ TEST(TaxScan, ScanInputBlockWithEndTerminatorAndInstructionAfter) {
 						parse(4, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 						parse(5, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a")
 					},
+					.instr_id = INSTR_ID_HEXDUMP,
 					.branches = {}
 				},
 				{
 					.name =     "print",
 					.input =    {parse(7, " 'done'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {},
 				}
 			}
@@ -315,16 +373,19 @@ TEST(TaxScan, ScanIgnoresComments) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'A'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =     "print",
 					.input =    {parse(3, " 'C'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches   {}
 				},
 				{
 					.name =     "print",
 					.input =    {parse(7, " 'G'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				}
 			}
@@ -357,11 +418,13 @@ TEST(TaxScan, ScanWithAppendToSingleLineInput) {
 						parse(3, "--header Authorization: hello"),
 						parse(4, "--body 'baz'")
 					},
+					.instr_id = INSTR_ID_CURL,
 					.branches = {}
 				},
 				{
 					.name =     "print",
 					.input =    {parse(5, " 'done'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {},
 				}
 			}
@@ -388,11 +451,13 @@ TEST(TaxScan, ScanWithSubroutine) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -402,6 +467,7 @@ TEST(TaxScan, ScanWithSubroutine) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -434,11 +500,13 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -448,6 +516,7 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -461,6 +530,7 @@ TEST(TaxScan, ScanWithWithBranchThatHasInput) {
 									{
 										.name =     "print",
 										.input =     {parse(5, " 'Bye'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -493,11 +563,13 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -507,6 +579,7 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -520,6 +593,7 @@ TEST(TaxScan, ScanWithMultipleBranches) {
 									{
 										.name =     "print",
 										.input =     {parse(5, " 'Bye'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -554,11 +628,13 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -568,11 +644,13 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									},
 									{
 										.name =     "print",
 										.input =    {parse(4, " 'Earth'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -586,11 +664,13 @@ TEST(TaxScan, ScanWithMultipleBranchesWithMultipleInstructions) {
 									{
 										.name =     "print",
 										.input =     {parse(6, " 'Bye'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									},
 									{
 										.name =     "print",
 										.input =     {parse(7, " 'Cheerio'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -625,11 +705,13 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -639,6 +721,7 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -652,6 +735,7 @@ TEST(TaxScan, ScanWithMultipleBranchesIgnoreComments) {
 									{
 										.name =     "print",
 										.input =     {parse(7, " 'Cheerio'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -685,11 +769,13 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -699,11 +785,13 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									},
 									{
 										.name =  "if",
 										.input = {parse(4, " say_goodbye")},
+										.instr_id = INSTR_ID_IF,
 										.branches = {
 											{
 												.default_branch = true,
@@ -713,6 +801,7 @@ TEST(TaxScan, ScanWithNestedSubroutine) {
 														{
 															.name =     "print",
 															.input =    {parse(5, " 'Bye'")},
+															.instr_id = INSTR_ID_PRINT,
 															.branches = {}
 														}
 													}
@@ -752,11 +841,13 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'Hello'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -766,11 +857,13 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'World'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									},
 									{
 										.name =  "if",
 										.input = {parse(4, " say_goodbye")},
+										.instr_id = INSTR_ID_IF,
 										.branches = {
 											{
 												.default_branch = true,
@@ -780,6 +873,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 														{
 															.name =     "print",
 															.input =    {parse(5, " 'Bye'")},
+															.instr_id = INSTR_ID_PRINT,
 															.branches = {}
 														}
 													}
@@ -790,6 +884,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 									{
 										.name =     "print",
 										.input =    {parse(6, " 'done'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -800,6 +895,7 @@ TEST(TaxScan, ScanInstructionNestedSubroutines) {
 				{
 					.name =     "print",
 					.input =    {parse(7, " 'exit'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				}
 			}
@@ -845,11 +941,13 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'A'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {},
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -859,11 +957,13 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 									{
 										.name =     "print",
 										.input =    {parse(3, " 'B'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches  {}
 									},
 									{
 										.name =  "if",
 										.input = {parse(4, " say_goodbye")},
+										.instr_id = INSTR_ID_IF,
 										.branches = {
 											{
 												.default_branch = true,
@@ -873,16 +973,19 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 														{
 															.name =     "print",
 															.input =    {parse(5, " 'C'")},
+															.instr_id = INSTR_ID_PRINT,
 															.branches = {}
 														},
 														{
 															.name =     "print",
 															.input =    {parse(6, " 'D'")},
+															.instr_id = INSTR_ID_PRINT,
 															.branches = {}
 														},
 														{
 															.name =  "if",
 															.input = {parse(7, " yes")},
+															.instr_id = INSTR_ID_IF,
 															.branches = {
 																{
 																	.default_branch = true,
@@ -892,11 +995,13 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 																			{
 																				.name =     "print",
 																				.input =    {parse(8, " 'D-1'")},
+																				.instr_id = INSTR_ID_PRINT,
 																				.branches = {}
 																			},
 																			{
 																				.name =     "print",
 																				.input =    {parse(9, " 'D-2'")},
+																				.instr_id = INSTR_ID_PRINT,
 																				.branches = {}
 																			}
 																		}
@@ -907,6 +1012,7 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 														{
 															.name =     "print",
 															.input =    {parse(11, " 'E'")},
+															.instr_id = INSTR_ID_PRINT,
 															.branches = {}
 														}
 													}
@@ -917,16 +1023,19 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 									{
 										.name =     "print",
 										.input =    {parse(13, " 'F'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									},
 									{
 										.name =     "print",
 										.input =    {parse(14, " 'G'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									},
 									{
 										.name =  "if",
 										.input = {parse(15, " !false")},
+										.instr_id = INSTR_ID_IF,
 										.branches = {
 											{
 												.default_branch = true,
@@ -936,11 +1045,13 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 														{
 															.name =     "print",
 															.input =    {parse(16, " 'H'")},
+															.instr_id = INSTR_ID_PRINT,
 															.branches = {}
 														},
 														{
 															.name =     "print",
 															.input =    {parse(17, " 'I'")},
+															.instr_id = INSTR_ID_PRINT,
 															.branches = {}
 														}
 													}
@@ -951,11 +1062,13 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 									{
 										.name =     "print",
 										.input =    {parse(19, " 'J'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									},
 									{
 										.name =     "print",
 										.input =    {parse(20, " 'K'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}
@@ -966,11 +1079,13 @@ TEST(TaxScan, ScanSeriesOfSubroutineAnd3LevelNestWithMultipleInstructions) {
 				{
 					.name =     "print",
 					.input =    {parse(22, " 'L'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =     "print",
 					.input =    {parse(23, " 'M'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				}
 			}
@@ -1002,11 +1117,13 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 				{
 					.name =     "print",
 					.input =    {parse(1, " 'start'")},
+					.instr_id = INSTR_ID_PRINT,
 					.branches = {}
 				},
 				{
 					.name =  "if",
 					.input = {parse(2, " true")},
+					.instr_id = INSTR_ID_IF,
 					.branches = {
 						{
 							.default_branch = true,
@@ -1020,11 +1137,13 @@ TEST(TaxScan, ScanAppendWithinSubroutine) {
 											parse(5, "0000010 0a 2f 2a 20 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 											parse(6, "0000020 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a 2a"),
 										},
+										.instr_id = INSTR_ID_HEXDUMP,
 										.branches = {}
 									},
 									{
 										.name =     "print",
 										.input =    {parse(8, " 'done'")},
+										.instr_id = INSTR_ID_PRINT,
 										.branches = {}
 									}
 								}

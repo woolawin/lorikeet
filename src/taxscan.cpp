@@ -53,7 +53,13 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
         if (skip_line(line, is_multi_line_comment)) {
             continue;
         }
-        StatementTaxonomy& stmt = routine.append(line);
+        std::optional<InstructionID> instr_id = machine.find_instr(line.first_word());
+        if (!instr_id.has_value()) {
+            return { unknown_instruction(idx) };
+        }
+        StatementTaxonomy& stmt = routine.append(instr_id.value(), line);
+        TaxStrat tax_strat = machine.tax_strat(line.first_word());
+
         if (idx == lines.size() - 1) {
             continue;
         }
@@ -67,7 +73,6 @@ std::vector<CompilationError> scan_routine(const std::vector<Line>& lines, Inden
             return { invalid_indentation(idx + 1) };
         }
 
-        TaxStrat tax_strat = machine.tax_strat(line.first_word());
         if (tax_strat.block_function == BlockFunction::NA) {
             return { instruction_does_not_accept_block(idx + 2) };
         }

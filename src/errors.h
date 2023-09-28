@@ -7,7 +7,8 @@
 
 enum class ErrorKind {
     InstructionDoesNotAcceptBlock,
-    InvalidIndentation
+    InvalidIndentation,
+    UnknownInstruction
 };
 
 struct CompilationError {
@@ -21,5 +22,6 @@ struct CompilationError {
 
 CompilationError instruction_does_not_accept_block(size_t line_num);
 CompilationError invalid_indentation(size_t line_num);
+CompilationError unknown_instruction(size_t line_num);
 
 #endif

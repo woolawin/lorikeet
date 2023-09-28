@@ -11,6 +11,7 @@
 
 class StateMachine {
     public:
+    virtual std::optional<InstructionID> find_instr(const std::string& name) = 0;
     virtual TaxStrat tax_strat(const std::string& instr_name) = 0;
 };
 
@@ -43,6 +44,7 @@ class RootStateMachine: public StateMachine {
     InstructionID new_instr_id();
 
     void init();
+    std::optional<InstructionID> find_instr(const std::string& name);
     TaxStrat tax_strat(const std::string& instr_name);
 };
 

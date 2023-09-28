@@ -51,6 +51,14 @@ TaxStrat RootStateMachine::tax_strat(const std::string& instr_name) {
     return value_strat();
 }
 
+std::optional<InstructionID> RootStateMachine::find_instr(const std::string& name) {
+    const std::optional<CommandInstr> cmd_opt = this->get_cmd_instr(name);
+    if (cmd_opt.has_value()) {
+        return cmd_opt.value().id;
+    }
+    return std::nullopt;
+}
+
 std::optional<CommandInstr> RootStateMachine::get_cmd_instr(const std::string& instr_name) {
     for (const CommandInstr& instr : this->command_instrs) {
         if (instr.name == instr_name) {

@@ -38,6 +38,7 @@ struct BranchTaxonomy;
 struct StatementTaxonomy {
     std::string name;
     std::vector<Line> input;
+    InstructionID instr_id;
     std::vector<BranchTaxonomy> branches;
 
     bool operator==(const StatementTaxonomy& other) const;
@@ -52,7 +53,7 @@ struct RoutineTaxonomy {
     bool operator==(const RoutineTaxonomy& other) const;
     friend std::ostream& operator<<(std::ostream& os, const RoutineTaxonomy& line);
 
-    StatementTaxonomy& append(const Line& line);
+    StatementTaxonomy& append(InstructionID instr_id, const Line& line);
 };
 
 struct BranchTaxonomy {
