@@ -11,15 +11,15 @@ TEST(Line, TwoWordsWithWhitespaceBetween) {
         .word_start = 0,
         .tokens = {
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "print"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " "
             },
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "data"
             }
         }
@@ -37,23 +37,23 @@ TEST(Line, BackquotesMakesWords) {
         .word_start = 0,
         .tokens = {
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "clang++"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " "
             },
             {
-                .kind = SYMBOL,
+                .kind = TokenKind::Symbol,
                 .value = "{"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " "
             },
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "}"
             }
         }
@@ -71,23 +71,23 @@ TEST(Line, WithWhitespaceAtStartAndEnd) {
         .word_start = 1,
         .tokens = {
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " \t  \t "
             },
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "print"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " "
             },
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "data"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = "\t\t  "
             }
         }
@@ -105,23 +105,23 @@ TEST(Line, SymbolAtEndOfLine) {
         .word_start = 0,
         .tokens = {
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "if"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " "
             },
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "true"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " "
             },
             {
-                .kind = SYMBOL,
+                .kind = TokenKind::Symbol,
                 .value = "{"
             }
         }
@@ -139,19 +139,19 @@ TEST(Line, SymbolsInMiddleWithoutSpaces) {
         .word_start = 0,
         .tokens = {
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "count"
             },
             {
-                .kind = SYMBOL,
+                .kind = TokenKind::Symbol,
                 .value = "+"
             },
             {
-                .kind = SYMBOL,
+                .kind = TokenKind::Symbol,
                 .value = "="
             },
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "1"
             }
         }
@@ -169,19 +169,19 @@ TEST(Line, WhitespaceSymbolWhitespaceThenWord) {
         .word_start = 3,
         .tokens = {
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = "\t"
             },
             {
-                .kind = SYMBOL,
+                .kind = TokenKind::Symbol,
                 .value = "|"
             },
             {
-                .kind = WHITESPACE,
+                .kind = TokenKind::Whitespace,
                 .value = " "
             },
             {
-                .kind = WORD,
+                .kind = TokenKind::Word,
                 .value = "echo"
             }
         }

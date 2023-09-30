@@ -13,9 +13,9 @@ bool LineToken::operator==(const LineToken& other) const {
 
 std::ostream& operator<<(std::ostream& os, const LineToken& token) {
     std::string kind_str;
-    if (token.kind == WHITESPACE) {
+    if (token.kind == TokenKind::Whitespace) {
         kind_str = "whitespace";
-    } else if (token.kind == WORD) {
+    } else if (token.kind == TokenKind::Word) {
         kind_str = "word";
     } else {
         kind_str = "symbol";
@@ -100,7 +100,7 @@ bool Line::only_non_whitespace_equals(const std::string& value) const {
 bool Line::is_seq_of_strings(const std::vector<std::string>& values) const {
 	size_t non_whitespace = 0;
 	for (size_t i = 0; i < this->tokens.size(); i++) {
-		if (this->tokens[i].kind != WHITESPACE) {
+		if (this->tokens[i].kind != TokenKind::Whitespace) {
 			non_whitespace++;
 		}
 	}
@@ -109,7 +109,7 @@ bool Line::is_seq_of_strings(const std::vector<std::string>& values) const {
 	}
 	size_t values_index = 0;
 	for (size_t i = 0; i < this->tokens.size(); i++) {
-		if (this->tokens[i].kind == WHITESPACE) {
+		if (this->tokens[i].kind == TokenKind::Whitespace) {
 			continue;
 		}
 		if (this->tokens[i].value != values[values_index]) {
@@ -137,22 +137,22 @@ Line Line::crop_from_first_word() const {
     std::vector<LineToken> new_tokens;
     for (size_t idx = 0; idx < tokens.size(); idx++) {
         const LineToken token = tokens[idx];
-        if (!found_first_word && token.kind != WORD) {
+        if (!found_first_word && token.kind != TokenKind::Word) {
             continue;
         }
-        if (!found_first_word && token.kind == WORD) {
+        if (!found_first_word && token.kind == TokenKind::Word) {
             found_first_word = true;
             crop_offset = idx + 1;
             continue;
         }
         new_tokens.push_back(token);
-        if (token.kind != WHITESPACE) {
+        if (token.kind != TokenKind::Whitespace) {
             end = idx - crop_offset;
         }
-        if (token.kind != WHITESPACE && start == -1) {
+        if (token.kind != TokenKind::Whitespace && start == -1) {
             start = idx - crop_offset;
         }
-        if (token.kind == WORD && word_start == -1) {
+        if (token.kind == TokenKind::Word && word_start == -1) {
             word_start = idx - crop_offset;
         }
     }
@@ -179,13 +179,13 @@ std::string Line::starting_whitespace() const {
 void calculate_start_and_stops(Line& line) {
     for (size_t idx = 0; idx < line.tokens.size(); idx++) {
         const LineToken token = line.tokens[idx];
-        if (token.kind != WHITESPACE) {
+        if (token.kind != TokenKind::Whitespace) {
             line.end = idx;
         }
-        if (token.kind != WHITESPACE && line.start == -1) {
+        if (token.kind != TokenKind::Whitespace && line.start == -1) {
             line.start = idx;
         }
-        if (token.kind == WORD && line.word_start == -1) {
+        if (token.kind == TokenKind::Word && line.word_start == -1) {
             line.word_start = idx;
         }
     }
@@ -193,10 +193,10 @@ void calculate_start_and_stops(Line& line) {
 
 Line Line::trim() const {
     Line line = { .line_num = this->line_num, .start = -1, .end = -1, .word_start = -1, .tokens = {} };
-    const size_t start = this->tokens[0].kind == WHITESPACE
+    const size_t start = this->tokens[0].kind == TokenKind::Whitespace
         ? 1
         : 0;
-    const size_t end = this->tokens.back().kind == WHITESPACE
+    const size_t end = this->tokens.back().kind == TokenKind::Whitespace
         ? this->tokens.size() - 1
         : this->tokens.size();
     for (size_t idx = start; idx < end; idx++) {
@@ -215,15 +215,15 @@ void Line::append(const Line& line) {
 
 TokenKind kind(char c) {
     if (c == '`') {
-        return WORD;
+        return TokenKind::Word;
     }
     if (std::isalpha(c) || std::isdigit(c) || c == '_') {
-        return WORD;
+        return TokenKind::Word;
     }
     if (std::isspace(c)) {
-        return WHITESPACE;
+        return TokenKind::Whitespace;
     }
-    return SYMBOL;
+    return TokenKind::Symbol;
 }
 
 void Line::append(char value) {
@@ -241,7 +241,7 @@ Line parse(int line_num, std::string value) {
             in_backquotes = !in_backquotes;
             continue;
         }
-        const TokenKind char_kind = in_backquotes ? WORD : kind(c);
+        const TokenKind char_kind = in_backquotes ? TokenKind::Word : kind(c);
 
         if (current == nullptr || char_kind != current->kind) {
             tokens.push_back({.kind = char_kind, .value = std::string(1, c)});
@@ -249,8 +249,8 @@ Line parse(int line_num, std::string value) {
             continue;
         }
 
-        if (char_kind == SYMBOL) {
-            tokens.push_back({.kind = SYMBOL, .value = std::string(1, c)});
+        if (char_kind == TokenKind::Symbol) {
+            tokens.push_back({.kind = TokenKind::Symbol, .value = std::string(1, c)});
             current = nullptr;
             continue;
         }

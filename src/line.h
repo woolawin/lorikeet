@@ -5,10 +5,10 @@
 #include <vector>
 #include <iostream>
 
-enum TokenKind {
-    WHITESPACE,
-    WORD,
-    SYMBOL
+enum class TokenKind {
+    Whitespace,
+    Word,
+    Symbol
 };
 
 struct LineToken {
