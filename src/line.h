@@ -8,7 +8,8 @@
 enum class TokenKind {
     Whitespace,
     Word,
-    Symbol
+    Symbol,
+    Quote
 };
 
 struct LineToken {
@@ -48,7 +49,7 @@ struct Line {
 std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<Line>& lines);
 Line parse(int line_num, std::string value);
 
-Line quotize(Line& line);
+Line quotize(const Line& line);
 
 enum class IndentationDiff {
     Increase,

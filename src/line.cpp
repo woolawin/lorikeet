@@ -17,6 +17,8 @@ std::ostream& operator<<(std::ostream& os, const LineToken& token) {
         kind_str = "whitespace";
     } else if (token.kind == TokenKind::Word) {
         kind_str = "word";
+    } else if (token.kind == TokenKind::Quote) {
+        kind_str = "quote";
     } else {
         kind_str = "symbol";
     }
@@ -270,8 +272,56 @@ std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<
 }
 
 
-Line quotize(Line& line) {
-    return line;
+Line quotize(const Line& line) {
+    std::vector<LineToken> tokens = {};
+    std::string quote = "";
+    bool in_quotes;
+    char quote_char = 0;
+    for (size_t idx = 0; idx < line.tokens.size(); idx++) {
+        const LineToken token = line.tokens[idx];
+        if (token.kind != TokenKind::Symbol && in_quotes) {
+            quote += token.value;
+            continue;
+        }
+
+        if (token.kind != TokenKind::Symbol) {
+            tokens.push_back(token);
+            continue;
+        }
+
+        if (token.value == "\\") {
+            LineToken next_token = line.tokens[idx + 1];
+            if (next_token.kind == TokenKind::Symbol && next_token.value[0] == quote_char) {
+                quote += quote_char;
+                idx++;
+                continue;
+            }
+        }
+
+        if (token.value != "\"" && token.value != "'" && in_quotes) {
+            quote += token.value;
+            continue;
+        }
+
+        if (token.value != "\"" && token.value != "'") {
+            tokens.push_back(token);
+            continue;
+        }
+
+        if (in_quotes) {
+            tokens.push_back({ .kind = TokenKind::Quote, .value = quote });
+            quote_char = 0;
+            in_quotes = false;
+            quote = "";
+            continue;
+        }
+
+        in_quotes = true;
+        quote_char = token.value[0];
+    }
+    Line quoted = { .line_num = line.line_num, .start = -1, .end = -1, .word_start = -1, .tokens = tokens };
+    calculate_start_and_stops(quoted);
+    return quoted;
 }
 
 IndentationDiff Indentation::diff(const std::string& next_indentation) const {

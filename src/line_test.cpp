@@ -306,3 +306,143 @@ TEST(Indentation, WrongIndentation2) {
     Indentation indentation = { .indentations = { "", " ", "  ", "   " } };
     EXPECT_EQ(indentation.diff(" \t "), IndentationDiff::Error);
 }
+
+TEST(Line, quotize_with_single_quote) {
+    Line actual = quotize(parse(1, "stdout 'Hello World'"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 2,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "stdout"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Quote,
+                .value = "Hello World"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+
+TEST(Line, quotize_with_double_quote) {
+    Line actual = quotize(parse(1, "stdout \"Hello World\""));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 2,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "stdout"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Quote,
+                .value = "Hello World"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+
+TEST(Line, quotize_escapes_single_quote) {
+    Line actual = quotize(parse(1, "stdout 'Hello W\\'orld'"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 2,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "stdout"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Quote,
+                .value = "Hello W'orld"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+TEST(Line, quotize_escapes_double_quote) {
+    Line actual = quotize(parse(1, "stdout \"Hello W\\\"orld\""));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 2,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "stdout"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Quote,
+                .value = "Hello W\"orld"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+TEST(Line, quotize_multiple_quotes) {
+    Line actual = quotize(parse(1, "stdout \"Hello \" 'W o r l d'"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 4,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "stdout"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Quote,
+                .value = "Hello "
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Quote,
+                .value = "W o r l d"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
