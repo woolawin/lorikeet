@@ -269,6 +269,11 @@ std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<
     return lines;
 }
 
+
+Line quotize(Line& line) {
+    return line;
+}
+
 IndentationDiff Indentation::diff(const std::string& next_indentation) const {
     if (this->indentations.empty()) {
         return next_indentation.size() == 0
