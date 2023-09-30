@@ -27,10 +27,18 @@ cc_library(
 )
 
 cc_library(
+    name = "lk-cmd-instr",
+    srcs = ["cmd_instr.cpp"],
+    hdrs = ["cmd_instr.h"],
+    deps = [":lk-core-types"],
+)
+
+
+cc_library(
     name = "lk-state-machine",
     srcs = ["state_machine.cpp"],
     hdrs = ["state_machine.h"],
-    deps = [":lk-core-types", ":lk-ports"],
+    deps = [":lk-core-types", ":lk-ports", ":lk-cmd-instr"],
 )
 
 cc_library(

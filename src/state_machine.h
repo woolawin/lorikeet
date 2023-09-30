@@ -8,20 +8,12 @@
 
 #include "ports.h"
 #include "core_types.h"
+#include "cmd_instr.h"
 
 class StateMachine {
     public:
     virtual std::optional<InstructionID> find_instr(const std::string& name) = 0;
     virtual TaxStrat tax_strat(InstructionID instr) = 0;
-};
-
-struct CommandInstr {
-    InstructionID id;
-    std::string name;
-    std::string path;
-
-    bool operator==(const CommandInstr& other) const;
-    friend std::ostream& operator<<(std::ostream& os, const CommandInstr& instr);
 };
 
 class RootStateMachine: public StateMachine {
