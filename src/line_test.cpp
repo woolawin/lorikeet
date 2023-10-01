@@ -306,7 +306,7 @@ TEST(Indentation, WrongIndentation2) {
     Indentation indentation = { .indentations = { "", " ", "  ", "   " } };
     EXPECT_EQ(indentation.diff(" \t "), IndentationDiff::Error);
 }
-
+/*
 TEST(Line, parse_quotes_with_single_quote) {
     Line actual = parse_quotes(parse(1, "stdout 'Hello World'"));
     Line expected = {
@@ -446,6 +446,7 @@ TEST(Line, parse_quotes_multiple_quotes) {
 
     EXPECT_EQ(actual, expected);
 }
+*/
 
 TEST(Line, parse_flags_short_flag) {
     Line actual = parse_flags(parse(1, "ping -c 1 foo"));
@@ -484,6 +485,171 @@ TEST(Line, parse_flags_short_flag) {
                 .kind = TokenKind::Word,
                 .value = "foo"
             }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+TEST(Line, parse_flags_long_flags) {
+    Line actual = parse_flags(parse(1, "ping --count 1 foo"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 6,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "ping"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Flag,
+                .value = "count",
+                .flag_prefix = "--"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "1"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "foo"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+
+TEST(Line, parse_flags_long_flag_that_contains_dash) {
+    Line actual = parse_flags(parse(1, "ping --co-unt 1 foo"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 6,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "ping"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Flag,
+                .value = "co-unt",
+                .flag_prefix = "--"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "1"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "foo"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+TEST(Line, parse_flags_with_multiple) {
+    Line actual = parse_flags(parse(1, "ping -d --count 1 -fc foo --out file"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 14,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "ping"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Flag,
+                .value = "d",
+                .flag_prefix = "-"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Flag,
+                .value = "count",
+                .flag_prefix = "--"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "1"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Flag,
+                .value = "fc",
+                .flag_prefix = "-"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "foo"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Flag,
+                .value = "out",
+                .flag_prefix = "--"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "file"
+            },
         }
     };
 

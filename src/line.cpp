@@ -332,6 +332,7 @@ Line parse_flags(const Line& line) {
     std::string flag = "";
     std::string flag_prefix = "";
     bool in_flag = false;
+    bool found_first_flag_word = false;
     for (size_t idx = 0; idx < line.tokens.size(); idx++) {
         const LineToken token = line.tokens[idx];
         if (!in_flag && token.kind != TokenKind::Symbol && token.value != "-") {
@@ -351,13 +352,23 @@ Line parse_flags(const Line& line) {
             in_flag = false;
             flag = "";
             flag_prefix = "";
+            found_first_flag_word = false;
             tokens.push_back(token);
             continue;
         }
 
         if (in_flag && token.kind == TokenKind::Word) {
             flag += token.value;
+            found_first_flag_word = true;
             continue;
+        }
+
+        if (in_flag && token.kind == TokenKind::Symbol && token.value == "-") {
+            if (found_first_flag_word) {
+                flag += token.value;
+            } else {
+                flag_prefix += token.value;
+            }
         }
 
     }
