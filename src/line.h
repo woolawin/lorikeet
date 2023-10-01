@@ -9,12 +9,14 @@ enum class TokenKind {
     Whitespace,
     Word,
     Symbol,
-    Quote
+    Quote,
+    Flag
 };
 
 struct LineToken {
     TokenKind kind;
     std::string value;
+    std::string flag_prefix;
 
     bool operator==(const LineToken& other) const;
     friend std::ostream& operator<<(std::ostream& os, const LineToken& token);
@@ -49,7 +51,9 @@ struct Line {
 std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<Line>& lines);
 Line parse(int line_num, std::string value);
 
-Line quotize(const Line& line);
+Line parse_quotes(const Line& line);
+
+Line parse_flags(const Line& line);
 
 enum class IndentationDiff {
     Increase,

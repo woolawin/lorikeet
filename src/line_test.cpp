@@ -307,8 +307,8 @@ TEST(Indentation, WrongIndentation2) {
     EXPECT_EQ(indentation.diff(" \t "), IndentationDiff::Error);
 }
 
-TEST(Line, quotize_with_single_quote) {
-    Line actual = quotize(parse(1, "stdout 'Hello World'"));
+TEST(Line, parse_quotes_with_single_quote) {
+    Line actual = parse_quotes(parse(1, "stdout 'Hello World'"));
     Line expected = {
         .line_num = 1,
         .start = 0,
@@ -334,8 +334,8 @@ TEST(Line, quotize_with_single_quote) {
 }
 
 
-TEST(Line, quotize_with_double_quote) {
-    Line actual = quotize(parse(1, "stdout \"Hello World\""));
+TEST(Line, parse_quotes_with_double_quote) {
+    Line actual = parse_quotes(parse(1, "stdout \"Hello World\""));
     Line expected = {
         .line_num = 1,
         .start = 0,
@@ -361,8 +361,8 @@ TEST(Line, quotize_with_double_quote) {
 }
 
 
-TEST(Line, quotize_escapes_single_quote) {
-    Line actual = quotize(parse(1, "stdout 'Hello W\\'orld'"));
+TEST(Line, parse_quotes_escapes_single_quote) {
+    Line actual = parse_quotes(parse(1, "stdout 'Hello W\\'orld'"));
     Line expected = {
         .line_num = 1,
         .start = 0,
@@ -387,8 +387,8 @@ TEST(Line, quotize_escapes_single_quote) {
     EXPECT_EQ(actual, expected);
 }
 
-TEST(Line, quotize_escapes_double_quote) {
-    Line actual = quotize(parse(1, "stdout \"Hello W\\\"orld\""));
+TEST(Line, parse_quotes_escapes_double_quote) {
+    Line actual = parse_quotes(parse(1, "stdout \"Hello W\\\"orld\""));
     Line expected = {
         .line_num = 1,
         .start = 0,
@@ -413,8 +413,8 @@ TEST(Line, quotize_escapes_double_quote) {
     EXPECT_EQ(actual, expected);
 }
 
-TEST(Line, quotize_multiple_quotes) {
-    Line actual = quotize(parse(1, "stdout \"Hello \" 'W o r l d'"));
+TEST(Line, parse_quotes_multiple_quotes) {
+    Line actual = parse_quotes(parse(1, "stdout \"Hello \" 'W o r l d'"));
     Line expected = {
         .line_num = 1,
         .start = 0,
@@ -440,6 +440,49 @@ TEST(Line, quotize_multiple_quotes) {
             {
                 .kind = TokenKind::Quote,
                 .value = "W o r l d"
+            }
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+TEST(Line, parse_flags_short_flag) {
+    Line actual = parse_flags(parse(1, "ping -c 1 foo"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 6,
+        .word_start = 0,
+        .tokens = {
+            {
+                .kind = TokenKind::Word,
+                .value = "ping"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Flag,
+                .value = "c",
+                .flag_prefix = "-"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "1"
+            },
+            {
+                .kind = TokenKind::Whitespace,
+                .value = " "
+            },
+            {
+                .kind = TokenKind::Word,
+                .value = "foo"
             }
         }
     };

@@ -8,7 +8,8 @@ const std::string EMPTY_WORD = "";
 
 bool LineToken::operator==(const LineToken& other) const {
     return this->kind == other.kind
-        && this->value == other.value;
+        && this->value == other.value
+        && this->flag_prefix == other.flag_prefix;
 }
 
 std::ostream& operator<<(std::ostream& os, const LineToken& token) {
@@ -19,10 +20,12 @@ std::ostream& operator<<(std::ostream& os, const LineToken& token) {
         kind_str = "word";
     } else if (token.kind == TokenKind::Quote) {
         kind_str = "quote";
+    } else if (token.kind == TokenKind::Flag) {
+        kind_str = "flag";
     } else {
         kind_str = "symbol";
     }
-    os << "{kind: " << kind_str << ", value=`" << token.value << "`}";
+    os << "{kind: " << kind_str << ", value=`" << token.value << "` flag_prefix=`" << token.flag_prefix <<"`}";
     return os;
 }
 
@@ -246,13 +249,13 @@ Line parse(int line_num, std::string value) {
         const TokenKind char_kind = in_backquotes ? TokenKind::Word : kind(c);
 
         if (current == nullptr || char_kind != current->kind) {
-            tokens.push_back({.kind = char_kind, .value = std::string(1, c)});
+            tokens.push_back({.kind = char_kind, .value = std::string(1, c), .flag_prefix = "" });
             current = &tokens.back();
             continue;
         }
 
         if (char_kind == TokenKind::Symbol) {
-            tokens.push_back({.kind = TokenKind::Symbol, .value = std::string(1, c)});
+            tokens.push_back({.kind = TokenKind::Symbol, .value = std::string(1, c), .flag_prefix = "" });
             current = nullptr;
             continue;
         }
@@ -272,7 +275,7 @@ std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<
 }
 
 
-Line quotize(const Line& line) {
+Line parse_quotes(const Line& line) {
     std::vector<LineToken> tokens = {};
     std::string quote = "";
     bool in_quotes;
@@ -309,7 +312,7 @@ Line quotize(const Line& line) {
         }
 
         if (in_quotes) {
-            tokens.push_back({ .kind = TokenKind::Quote, .value = quote });
+            tokens.push_back({ .kind = TokenKind::Quote, .value = quote, .flag_prefix = "" });
             quote_char = 0;
             in_quotes = false;
             quote = "";
@@ -322,6 +325,45 @@ Line quotize(const Line& line) {
     Line quoted = { .line_num = line.line_num, .start = -1, .end = -1, .word_start = -1, .tokens = tokens };
     calculate_start_and_stops(quoted);
     return quoted;
+}
+
+Line parse_flags(const Line& line) {
+    std::vector<LineToken> tokens;
+    std::string flag = "";
+    std::string flag_prefix = "";
+    bool in_flag = false;
+    for (size_t idx = 0; idx < line.tokens.size(); idx++) {
+        const LineToken token = line.tokens[idx];
+        if (!in_flag && token.kind != TokenKind::Symbol && token.value != "-") {
+            tokens.push_back(token);
+            continue;
+        }
+
+        if (!in_flag && token.kind == TokenKind::Symbol && token.value == "-") {
+            in_flag = true;
+            flag_prefix = token.value;
+            continue;
+        }
+
+        if (in_flag && token.kind == TokenKind::Whitespace) {
+            // TODO if not found word revert to not being a flag
+            tokens.push_back({ .kind = TokenKind::Flag, .value = flag, .flag_prefix = flag_prefix });
+            in_flag = false;
+            flag = "";
+            flag_prefix = "";
+            tokens.push_back(token);
+            continue;
+        }
+
+        if (in_flag && token.kind == TokenKind::Word) {
+            flag += token.value;
+            continue;
+        }
+
+    }
+    Line flagged = { .line_num = line.line_num, .start = -1, .end = -1, .word_start = -1, .tokens = tokens };
+    calculate_start_and_stops(flagged);
+    return flagged;
 }
 
 IndentationDiff Indentation::diff(const std::string& next_indentation) const {
