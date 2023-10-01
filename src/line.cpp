@@ -381,20 +381,20 @@ Line parse_flags(const Line& line) {
             continue;
         }
 
-        if (in_flag && token.kind == TokenKind::Word) {
-            flag += token.value;
-            found_first_flag_word = true;
-            continue;
-        }
-
         if (in_flag && token.kind == TokenKind::Symbol && token.value == "-") {
             if (found_first_flag_word) {
                 flag += token.value;
             } else {
                 flag_prefix += token.value;
             }
+            continue;
         }
 
+        if (in_flag && (token.kind != TokenKind::Whitespace || token.kind != TokenKind::Symbol)) {
+            flag += token.value;
+            found_first_flag_word = true;
+            continue;
+        }
     }
     Line flagged = { .line_num = line.line_num, .start = -1, .end = -1, .word_start = -1, .tokens = tokens };
     calculate_start_and_stops(flagged);

@@ -76,6 +76,26 @@ TEST(Line, SymbolAtEndOfLine) {
     EXPECT_EQ(actual, expected);
 }
 
+
+TEST(Line, Quotes) {
+    Line actual = parse(1, "if 'yes'");
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 4,
+        .word_start = 0,
+        .tokens = {
+            word_token("if"),
+            whitespace_token(" "),
+            symbol_token("'"),
+            word_token("yes"),
+            symbol_token("'")
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
 TEST(Line, SymbolsInMiddleWithoutSpaces) {
     Line actual = parse(1, "count+=1");
     Line expected = {
@@ -407,6 +427,27 @@ TEST(Line, parse_flags_with_multiple) {
             flag_token("out", "--"),
             whitespace_token(" "),
             word_token("file")
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+TEST(Line, parse_flags_with_parse_quotes) {
+    Line actual = parse_flags(parse_quotes(parse(1, "ping --count 1 'foo'")));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 6,
+        .word_start = 0,
+        .tokens = {
+            word_token("ping"),
+            whitespace_token(" "),
+            flag_token("count", "--"),
+            whitespace_token(" "),
+            word_token("1"),
+            whitespace_token(" "),
+            quote_token("foo")
         }
     };
 
