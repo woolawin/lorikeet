@@ -47,6 +47,30 @@ std::ostream& operator<<(std::ostream& os, const Line& line) {
     return os;
 }
 
+LineToken generic_token(TokenKind kind, std::string value) {
+    return { .kind = kind, .value = value, .flag_prefix = "" };
+}
+
+LineToken word_token(std::string value) {
+    return { .kind = TokenKind::Word, .value = value, .flag_prefix = "" };
+}
+
+LineToken symbol_token(std::string value) {
+    return { .kind = TokenKind::Symbol, .value = value, .flag_prefix = "" };
+}
+
+LineToken whitespace_token(std::string value) {
+    return { .kind = TokenKind::Whitespace, .value = value, .flag_prefix = "" };
+}
+
+LineToken quote_token(std::string value) {
+    return { .kind = TokenKind::Quote, .value = value, .flag_prefix = "" };
+}
+
+LineToken flag_token(std::string value, std::string prefix) {
+    return { .kind = TokenKind::Flag, .value = value, .flag_prefix = prefix };
+}
+
 const std::string& Line::first_word() const {
     if (this->word_start == -1) {
         return EMPTY_WORD;
@@ -232,7 +256,7 @@ TokenKind kind(char c) {
 }
 
 void Line::append(char value) {
-    this->tokens.push_back({ .kind = kind(value), .value = std::string(1, value) });
+    this->tokens.push_back(generic_token(kind(value), std::string(1, value)));
     calculate_start_and_stops(*this);
 }
 
@@ -249,13 +273,13 @@ Line parse(int line_num, std::string value) {
         const TokenKind char_kind = in_backquotes ? TokenKind::Word : kind(c);
 
         if (current == nullptr || char_kind != current->kind) {
-            tokens.push_back({.kind = char_kind, .value = std::string(1, c), .flag_prefix = "" });
+            tokens.push_back(generic_token(char_kind, std::string(1, c)));
             current = &tokens.back();
             continue;
         }
 
         if (char_kind == TokenKind::Symbol) {
-            tokens.push_back({.kind = TokenKind::Symbol, .value = std::string(1, c), .flag_prefix = "" });
+            tokens.push_back(symbol_token(std::string(1, c)));
             current = nullptr;
             continue;
         }
@@ -312,7 +336,7 @@ Line parse_quotes(const Line& line) {
         }
 
         if (in_quotes) {
-            tokens.push_back({ .kind = TokenKind::Quote, .value = quote, .flag_prefix = "" });
+            tokens.push_back(quote_token(quote));
             quote_char = 0;
             in_quotes = false;
             quote = "";
@@ -348,7 +372,7 @@ Line parse_flags(const Line& line) {
 
         if (in_flag && token.kind == TokenKind::Whitespace) {
             // TODO if not found word revert to not being a flag
-            tokens.push_back({ .kind = TokenKind::Flag, .value = flag, .flag_prefix = flag_prefix });
+            tokens.push_back(flag_token(flag, flag_prefix));
             in_flag = false;
             flag = "";
             flag_prefix = "";

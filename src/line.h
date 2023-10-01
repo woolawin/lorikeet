@@ -52,8 +52,13 @@ std::vector<Line>& parse(const std::vector<std::string>& lines_raw, std::vector<
 Line parse(int line_num, std::string value);
 
 Line parse_quotes(const Line& line);
-
 Line parse_flags(const Line& line);
+
+LineToken word_token(std::string value);
+LineToken symbol_token(std::string value);
+LineToken whitespace_token(std::string value);
+LineToken quote_token(std::string value);
+LineToken flag_token(std::string value, std::string prefix);
 
 enum class IndentationDiff {
     Increase,

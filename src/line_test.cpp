@@ -10,18 +10,9 @@ TEST(Line, TwoWordsWithWhitespaceBetween) {
         .end = 2,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "print"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "data"
-            }
+            word_token("print"),
+            whitespace_token(" "),
+            word_token("data")
         }
     };
 
@@ -36,26 +27,11 @@ TEST(Line, BackquotesMakesWords) {
         .end = 4,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "clang++"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Symbol,
-                .value = "{"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "}"
-            }
+            word_token("clang++"),
+            whitespace_token(" "),
+            symbol_token("{"),
+            whitespace_token(" "),
+            word_token("}")
         }
     };
 
@@ -70,26 +46,11 @@ TEST(Line, WithWhitespaceAtStartAndEnd) {
         .end = 3,
         .word_start = 1,
         .tokens = {
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " \t  \t "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "print"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "data"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = "\t\t  "
-            }
+            whitespace_token(" \t  \t "),
+            word_token("print"),
+            whitespace_token(" "),
+            word_token("data"),
+            whitespace_token("\t\t  ")
         }
     };
 
@@ -104,26 +65,11 @@ TEST(Line, SymbolAtEndOfLine) {
         .end = 4,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "if"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "true"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Symbol,
-                .value = "{"
-            }
+            word_token("if"),
+            whitespace_token(" "),
+            word_token("true"),
+            whitespace_token(" "),
+            symbol_token("{")
         }
     };
 
@@ -138,22 +84,10 @@ TEST(Line, SymbolsInMiddleWithoutSpaces) {
         .end = 3,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "count"
-            },
-            {
-                .kind = TokenKind::Symbol,
-                .value = "+"
-            },
-            {
-                .kind = TokenKind::Symbol,
-                .value = "="
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "1"
-            }
+            word_token("count"),
+            symbol_token("+"),
+            symbol_token("="),
+            word_token("1")
         }
     };
 
@@ -168,22 +102,10 @@ TEST(Line, WhitespaceSymbolWhitespaceThenWord) {
         .end = 3,
         .word_start = 3,
         .tokens = {
-            {
-                .kind = TokenKind::Whitespace,
-                .value = "\t"
-            },
-            {
-                .kind = TokenKind::Symbol,
-                .value = "|"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "echo"
-            }
+            whitespace_token("\t"),
+            symbol_token("|"),
+            whitespace_token(" "),
+            word_token("echo")
         }
     };
 
@@ -306,7 +228,8 @@ TEST(Indentation, WrongIndentation2) {
     Indentation indentation = { .indentations = { "", " ", "  ", "   " } };
     EXPECT_EQ(indentation.diff(" \t "), IndentationDiff::Error);
 }
-/*
+
+
 TEST(Line, parse_quotes_with_single_quote) {
     Line actual = parse_quotes(parse(1, "stdout 'Hello World'"));
     Line expected = {
@@ -315,18 +238,9 @@ TEST(Line, parse_quotes_with_single_quote) {
         .end = 2,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "stdout"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Quote,
-                .value = "Hello World"
-            }
+            word_token("stdout"),
+            whitespace_token(" "),
+            quote_token("Hello World")
         }
     };
 
@@ -342,18 +256,9 @@ TEST(Line, parse_quotes_with_double_quote) {
         .end = 2,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "stdout"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Quote,
-                .value = "Hello World"
-            }
+            word_token("stdout"),
+            whitespace_token(" "),
+            quote_token("Hello World")
         }
     };
 
@@ -369,18 +274,9 @@ TEST(Line, parse_quotes_escapes_single_quote) {
         .end = 2,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "stdout"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Quote,
-                .value = "Hello W'orld"
-            }
+            word_token("stdout"),
+            whitespace_token(" "),
+            quote_token("Hello W'orld")
         }
     };
 
@@ -395,18 +291,9 @@ TEST(Line, parse_quotes_escapes_double_quote) {
         .end = 2,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "stdout"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Quote,
-                .value = "Hello W\"orld"
-            }
+            word_token("stdout"),
+            whitespace_token(" "),
+            quote_token("Hello W\"orld")
         }
     };
 
@@ -421,32 +308,17 @@ TEST(Line, parse_quotes_multiple_quotes) {
         .end = 4,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "stdout"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Quote,
-                .value = "Hello "
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Quote,
-                .value = "W o r l d"
-            }
+            word_token("stdout"),
+            whitespace_token(" "),
+            quote_token("Hello "),
+            whitespace_token(" "),
+            quote_token("W o r l d")
         }
     };
 
     EXPECT_EQ(actual, expected);
 }
-*/
+
 
 TEST(Line, parse_flags_short_flag) {
     Line actual = parse_flags(parse(1, "ping -c 1 foo"));
@@ -456,35 +328,13 @@ TEST(Line, parse_flags_short_flag) {
         .end = 6,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "ping"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Flag,
-                .value = "c",
-                .flag_prefix = "-"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "1"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "foo"
-            }
+            word_token("ping"),
+            whitespace_token(" "),
+            flag_token("c", "-"),
+            whitespace_token(" "),
+            word_token("1"),
+            whitespace_token(" "),
+            word_token("foo")
         }
     };
 
@@ -499,35 +349,13 @@ TEST(Line, parse_flags_long_flags) {
         .end = 6,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "ping"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Flag,
-                .value = "count",
-                .flag_prefix = "--"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "1"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "foo"
-            }
+            word_token("ping"),
+            whitespace_token(" "),
+            flag_token("count", "--"),
+            whitespace_token(" "),
+            word_token("1"),
+            whitespace_token(" "),
+            word_token("foo")
         }
     };
 
@@ -543,35 +371,13 @@ TEST(Line, parse_flags_long_flag_that_contains_dash) {
         .end = 6,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "ping"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Flag,
-                .value = "co-unt",
-                .flag_prefix = "--"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "1"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "foo"
-            }
+            word_token("ping"),
+            whitespace_token(" "),
+            flag_token("co-unt", "--"),
+            whitespace_token(" "),
+            word_token("1"),
+            whitespace_token(" "),
+            word_token("foo")
         }
     };
 
@@ -586,70 +392,21 @@ TEST(Line, parse_flags_with_multiple) {
         .end = 14,
         .word_start = 0,
         .tokens = {
-            {
-                .kind = TokenKind::Word,
-                .value = "ping"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Flag,
-                .value = "d",
-                .flag_prefix = "-"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Flag,
-                .value = "count",
-                .flag_prefix = "--"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "1"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Flag,
-                .value = "fc",
-                .flag_prefix = "-"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "foo"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Flag,
-                .value = "out",
-                .flag_prefix = "--"
-            },
-            {
-                .kind = TokenKind::Whitespace,
-                .value = " "
-            },
-            {
-                .kind = TokenKind::Word,
-                .value = "file"
-            },
+            word_token("ping"),
+            whitespace_token(" "),
+            flag_token("d", "-"),
+            whitespace_token(" "),
+            flag_token("count", "--"),
+            whitespace_token(" "),
+            word_token("1"),
+            whitespace_token(" "),
+            flag_token("fc", "-"),
+            whitespace_token(" "),
+            word_token("foo"),
+            whitespace_token(" "),
+            flag_token("out", "--"),
+            whitespace_token(" "),
+            word_token("file")
         }
     };
 
