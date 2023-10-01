@@ -371,13 +371,19 @@ Line parse_flags(const Line& line) {
         }
 
         if (in_flag && token.kind == TokenKind::Whitespace) {
-            // TODO if not found word revert to not being a flag
-            tokens.push_back(flag_token(flag, flag_prefix));
+            if (!found_first_flag_word) {
+                for (char c : flag_prefix) {
+                    tokens.push_back(symbol_token(std::string(1, c)));
+                }
+                tokens.push_back(token);
+            } else {
+                tokens.push_back(flag_token(flag, flag_prefix));
+                tokens.push_back(token);
+            }
             in_flag = false;
             flag = "";
             flag_prefix = "";
             found_first_flag_word = false;
-            tokens.push_back(token);
             continue;
         }
 
@@ -390,7 +396,7 @@ Line parse_flags(const Line& line) {
             continue;
         }
 
-        if (in_flag && (token.kind != TokenKind::Whitespace || token.kind != TokenKind::Symbol)) {
+        if (in_flag && token.kind == TokenKind::Word) {
             flag += token.value;
             found_first_flag_word = true;
             continue;

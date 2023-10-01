@@ -453,3 +453,42 @@ TEST(Line, parse_flags_with_parse_quotes) {
 
     EXPECT_EQ(actual, expected);
 }
+
+TEST(Line, parse_flags_two_dashes_without_word_is_not_flag) {
+    Line actual = parse_flags(parse(1, "ping -- foo"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 5,
+        .word_start = 0,
+        .tokens = {
+            word_token("ping"),
+            whitespace_token(" "),
+            symbol_token("-"),
+            symbol_token("-"),
+            whitespace_token(" "),
+            word_token("foo")
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
+
+TEST(Line, parse_flags_with_quoted_flag) {
+    Line actual = parse_flags(parse(1, "ping --`c o u n t` foo"));
+    Line expected = {
+        .line_num = 1,
+        .start = 0,
+        .end = 4,
+        .word_start = 0,
+        .tokens = {
+            word_token("ping"),
+            whitespace_token(" "),
+            flag_token("c o u n t", "--"),
+            whitespace_token(" "),
+            word_token("foo")
+        }
+    };
+
+    EXPECT_EQ(actual, expected);
+}
