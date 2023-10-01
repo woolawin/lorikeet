@@ -16,6 +16,7 @@ enum class TokenKind {
 struct LineToken {
     TokenKind kind;
     std::string value;
+    std::string quote_mark;
     std::string flag_prefix;
 
     bool operator==(const LineToken& other) const;
@@ -57,7 +58,7 @@ Line parse_flags(const Line& line);
 LineToken word_token(std::string value);
 LineToken symbol_token(std::string value);
 LineToken whitespace_token(std::string value);
-LineToken quote_token(std::string value);
+LineToken quote_token(std::string value, std::string quote_mark);
 LineToken flag_token(std::string value, std::string prefix);
 
 enum class IndentationDiff {

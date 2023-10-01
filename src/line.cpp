@@ -9,6 +9,7 @@ const std::string EMPTY_WORD = "";
 bool LineToken::operator==(const LineToken& other) const {
     return this->kind == other.kind
         && this->value == other.value
+        && this->quote_mark == other.quote_mark
         && this->flag_prefix == other.flag_prefix;
 }
 
@@ -25,7 +26,10 @@ std::ostream& operator<<(std::ostream& os, const LineToken& token) {
     } else {
         kind_str = "symbol";
     }
-    os << "{kind: " << kind_str << ", value=`" << token.value << "` flag_prefix=`" << token.flag_prefix <<"`}";
+    os << "{kind: " << kind_str << ", value=`" << token.value << "` ";
+    os << "quote_mark=`" << token.quote_mark << "` ";
+    os << "flag_prefix=`" << token.flag_prefix <<"` ";
+    os << "}";
     return os;
 }
 
@@ -48,27 +52,27 @@ std::ostream& operator<<(std::ostream& os, const Line& line) {
 }
 
 LineToken generic_token(TokenKind kind, std::string value) {
-    return { .kind = kind, .value = value, .flag_prefix = "" };
+    return { .kind = kind, .value = value, .quote_mark = "", .flag_prefix = "" };
 }
 
 LineToken word_token(std::string value) {
-    return { .kind = TokenKind::Word, .value = value, .flag_prefix = "" };
+    return { .kind = TokenKind::Word, .value = value, .quote_mark = "", .flag_prefix = "" };
 }
 
 LineToken symbol_token(std::string value) {
-    return { .kind = TokenKind::Symbol, .value = value, .flag_prefix = "" };
+    return { .kind = TokenKind::Symbol, .value = value, .quote_mark = "", .flag_prefix = "" };
 }
 
 LineToken whitespace_token(std::string value) {
-    return { .kind = TokenKind::Whitespace, .value = value, .flag_prefix = "" };
+    return { .kind = TokenKind::Whitespace, .value = value, .quote_mark = "", .flag_prefix = "" };
 }
 
-LineToken quote_token(std::string value) {
-    return { .kind = TokenKind::Quote, .value = value, .flag_prefix = "" };
+LineToken quote_token(std::string value, std::string quote_mark) {
+    return { .kind = TokenKind::Quote, .value = value, .quote_mark = quote_mark, .flag_prefix = "" };
 }
 
 LineToken flag_token(std::string value, std::string prefix) {
-    return { .kind = TokenKind::Flag, .value = value, .flag_prefix = prefix };
+    return { .kind = TokenKind::Flag, .value = value, .quote_mark = "", .flag_prefix = prefix };
 }
 
 const std::string& Line::first_word() const {
@@ -336,7 +340,7 @@ Line parse_quotes(const Line& line) {
         }
 
         if (in_quotes) {
-            tokens.push_back(quote_token(quote));
+            tokens.push_back(quote_token(quote, std::string(1, quote_char)));
             quote_char = 0;
             in_quotes = false;
             quote = "";

@@ -260,7 +260,7 @@ TEST(Line, parse_quotes_with_single_quote) {
         .tokens = {
             word_token("stdout"),
             whitespace_token(" "),
-            quote_token("Hello World")
+            quote_token("Hello World", "'")
         }
     };
 
@@ -278,7 +278,7 @@ TEST(Line, parse_quotes_with_double_quote) {
         .tokens = {
             word_token("stdout"),
             whitespace_token(" "),
-            quote_token("Hello World")
+            quote_token("Hello World", "\"")
         }
     };
 
@@ -296,7 +296,7 @@ TEST(Line, parse_quotes_escapes_single_quote) {
         .tokens = {
             word_token("stdout"),
             whitespace_token(" "),
-            quote_token("Hello W'orld")
+            quote_token("Hello W'orld", "'")
         }
     };
 
@@ -313,7 +313,7 @@ TEST(Line, parse_quotes_escapes_double_quote) {
         .tokens = {
             word_token("stdout"),
             whitespace_token(" "),
-            quote_token("Hello W\"orld")
+            quote_token("Hello W\"orld", "\"")
         }
     };
 
@@ -330,9 +330,9 @@ TEST(Line, parse_quotes_multiple_quotes) {
         .tokens = {
             word_token("stdout"),
             whitespace_token(" "),
-            quote_token("Hello "),
+            quote_token("Hello ", "\""),
             whitespace_token(" "),
-            quote_token("W o r l d")
+            quote_token("W o r l d", "'")
         }
     };
 
@@ -447,7 +447,7 @@ TEST(Line, parse_flags_with_parse_quotes) {
             whitespace_token(" "),
             word_token("1"),
             whitespace_token(" "),
-            quote_token("foo")
+            quote_token("foo", "'")
         }
     };
 
